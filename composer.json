@@ -1,6 +1,7 @@
 {
     "name": "tphps/apcu",
     "description": "TPHP Framework",
+    "license": "TPHP",
     "authors": [
         {
             "name": "yuxing",
