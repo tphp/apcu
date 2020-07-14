@@ -7,7 +7,5 @@
             "email": "336296@qq.com"
         }
     ],
-    "require": {
-        "tphps/apcu": "^1.1"
-    }
+    "require": {}
 }
