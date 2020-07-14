@@ -1,0 +1,11 @@
+{
+    "name": "tphps/apcu",
+    "description": "TPHP框架",
+    "authors": [
+        {
+            "name": "yuxing",
+            "email": "336296@qq.com"
+        }
+    ],
+    "require": {}
+}
