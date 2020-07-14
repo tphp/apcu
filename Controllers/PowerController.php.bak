@@ -1,0 +1,407 @@
+<?php
+/**
+ * 权限验证系统
+ */
+namespace Apcu\Controllers;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+
+//支持跨域访问
+header("Access-Control-Allow-Origin:*");
+
+class PowerController extends Controller
+{
+    function __construct($tpl_path = "", $tpl_type = "", $args = [], $base_path = "")
+    {
+        $is_index = false;
+        if($tpl_path == 'index'){
+            $dir = $_GET['dir'];
+            $is_index = true;
+        }else{
+            $dir = $tpl_path;
+        }
+        $this->is_index = $is_index;
+        $this->dir = $dir;
+        $this->session_id = SESSION_ID;
+        $this->base_path = $base_path;
+
+        $this->userinfo = $this->get_user_info();
+        // 目录访问权限验证
+        $this->check_hide($this->userinfo);
+        if($this->is_index) {
+            $hr = $_SERVER['HTTP_REFERER'];
+            if(!empty($hr)){
+//                dump($GLOBALS);
+//                dump($this->__getx($hr));
+            }
+        }
+
+    }
+
+    private function __getx($url){
+        header("Content-type:text/html;Charset=utf8");
+        $ch =curl_init();
+        curl_setopt($ch,CURLOPT_URL, $url);
+
+        $header = array();
+        curl_setopt($ch,CURLOPT_RETURNTRANSFER,true);
+        curl_setopt($ch,CURLOPT_HEADER,true);
+        curl_setopt($ch,CURLOPT_HTTPHEADER,$header);
+        curl_setopt($ch,CURLOPT_COOKIE,'JSESSIONID=B5B2BFC38EA01113E6E00317F32E1BA0');
+
+
+        $content = curl_exec($ch);
+        curl_close($ch);
+        dump($content);
+    }
+
+    public function __run(){
+        list($status, $msg, $power_names) = import('FieldInfo')->get($this->config, $this->dir, $this);
+        if(empty($power_names)){
+            $power_names = [];
+        }
+        // 菜单显示权限验证
+        $power = $this->get_power();
+        $tpower = $this->config['power'];
+        if(is_array($tpower)){
+            foreach ($tpower as $key=>$val){
+                if(is_bool($val) && $val === false){
+                    unset($power[$key]);
+                }
+            }
+        }
+        $this->power = $power;
+        $this->power_names = $power_names;
+        $this->setView('power', $power);
+    }
+
+    /**
+     * 目录访问权限验证
+     */
+    private function check_hide($userinfo){
+        $dir = $this->dir;
+        $base_path = $this->base_path;
+        $dir_arr = explode("/", $dir);
+        $dirstr = "";
+        $is_hide = false;
+        foreach ($dir_arr as $dstr){
+            $dirstr .= "/" . $dstr;
+            $t_hide = $base_path . $dirstr . "/hide";
+            //后期加的
+//            $this->db("UserInfo", "inq_quo")->where("user_id", "=", )->get();
+            $temparr=array();
+            if($userinfo['role'] == '销售'){
+                $temparr[]=1;
+            }elseif($userinfo['role']== '采购'){
+                $temparr[]=2;
+            }elseif($userinfo['role']== '管理员'){
+                $temparr[]=3;
+            }elseif($userinfo['role']== '销售经理'){
+                $temparr[]=4;
+            }elseif($userinfo['role']== '采购经理'){
+                $temparr[]=5;
+            }elseif($userinfo['role']=='销售助理'||$userinfo['role']=='销售组长'){
+                $temparr[]=6;
+            }elseif($userinfo['role']=='采购助理'||$userinfo['role']=='采购组长'){
+                $temparr[]=7;
+            }elseif($userinfo['role']=='管理员2'){
+                $temparr[]=8;
+            }
+//            dump($dirstr);
+            if(!in_array(3,$temparr)&&!in_array(8,$temparr)){
+//                dd(222);
+                if($dirstr=='/finance'||$dirstr=='/mechanism'){
+                    $is_hide = true;
+                    break;
+                }
+            }
+            if(in_array(8,$temparr)){
+//                dump($dirstr);
+                if($dirstr=='/merchant_archives'||$dirstr=='/business'||$dirstr=='/stock'){
+                    $is_hide = true;
+                    break;
+                }
+            }
+            if(in_array(2,$temparr)||in_array(5,$temparr)||in_array(7,$temparr)){
+                if($dirstr=='/merchant_archives/customer_files'){
+                    $is_hide = true;
+                    break;
+                }
+            }
+            if(in_array(1,$temparr)||in_array(4,$temparr)||in_array(6,$temparr)){
+                if($dirstr=='/merchant_archives/supplier_files'){
+                    $is_hide = true;
+                    break;
+                }
+            }
+
+            if(file_exists($t_hide)){
+                $is_hide = true;
+                break;
+            }
+        }
+        if($is_hide){
+            $this->err_page("无效目录或无权限访问！");
+        }
+    }
+
+    /**
+     * 菜单显示权限验证
+     */
+    private function get_power(){
+        $dir = $this->dir;
+        $web_path = trim(config("path.sys_web"), "/");
+        $top_path = substr($GLOBALS['DOMAIN_CONFIG']['tpl'], strlen($web_path) + 1);
+        $top_path = trim(trim($top_path), "/");
+        $real_dir = $top_path . "/" . $dir;
+        $this->top_path = $top_path;
+        $this->real_dir = $real_dir;
+        $menu_id = $this->get_md5_int($real_dir);
+        if (!isset($this->userinfo['menus'][$menu_id])) {
+//            if(file_exists($this->base_path. "/" .$dir."/data.php")) {
+//                $this->err_page("没有权限访问！");
+//            }
+        }
+        $power = $this->userinfo['power'];
+        if(isset($power[$menu_id])){
+            $tpower = $power[$menu_id];
+        }else{
+            $tpower = [];
+        }
+        return $tpower;
+    }
+
+    private function get_md5_int($str){
+        $x16 = strtoupper(substr(md5($str), 8, 8));
+        return hexdec($x16)."";
+    }
+
+    /**
+     * 获取用户信息
+     */
+    private function get_user_info(){
+        $exp_time = 24 * 60 * 60; // 24小时过期
+        $cid = $this->session_id."_userinfo";
+        $tokenid = $this->session_id."_token";
+        $userinfo = Cache::get($cid);
+        $token = $_GET['token'];
+        if(empty($token)){
+            if(empty($userinfo)) {
+                $this->err_page("用户登录错误: Token验证！");
+            }else{
+                return $userinfo;
+            }
+        }else{
+            $u_token = Cache::get($tokenid);
+            if($token == $u_token) {
+                return $userinfo;
+            }
+        }
+
+        $dbname = env('TOKEN_CONN', 'system');
+        $dc = config("database.connections");
+        if(empty($dc[$dbname])){
+            $this->err_page($dbname. "配置错误");
+        }
+        $dbc = DB::connection($dbname);
+        $tokeninfo = $dbc->table(env('TOKEN_TABLE', 'user_token'))->where("Token", "=", $token)->first();
+        if(empty($tokeninfo)){
+            $this->err_page("无效用户登录");
+        }
+        $tinfo = [];
+        foreach ($tokeninfo as $key=>$val){
+            $tinfo[strtolower($key)] = $val;
+        }
+        $usercode = $tinfo['usercode'];
+        if(empty($usercode)){
+            $this->err_page("无效用户登录");
+        }
+        $user_id = $this->get_md5_int($usercode);
+        $role_list = $this->db("user_ids_role", "system")->where("user_id", "=", $user_id)->get();
+        if(count($role_list) <= 0){
+            $this->err_page("用户角色未配置");
+        }
+        $roles = [];
+        foreach ($role_list as $role){
+            $roles[] = $role->user_role_id;
+        }
+        $role_names = $this->db("user_role", "system")->whereIn("id", $roles)->get();
+        $role_kv = [];
+        foreach ($role_names as $key=>$val){
+            $role_kv[$val->id] = $val->name;
+        }
+        $menu_list = $this->db("user_role_menu", "system")->whereIn("user_role_id", $roles)->get();
+        if(count($menu_list) <= 0){
+            $this->err_page("功能菜单获取失败");
+        }
+        $idm_list = $this->db("sys_menu", "system")->select("id", 'dir_path')->get();
+        $menukv = [];
+        foreach ($idm_list as $idm){
+            $menukv[$idm->id] = $idm->dir_path;
+        }
+        $menus = [];
+        $menu_dirs = [];
+        foreach ($menu_list as $menu){
+            $d = $menukv[$menu->sys_menu_id];
+            $menus[$menu->sys_menu_id] = $d;
+            $menu_dirs[$d] = $menu->sys_menu_id;
+        }
+        // 多角色权限合并
+        $power_list = $this->db("user_role_menu_info", "system")->whereIn("user_role_id", $roles)->get();
+        $power_ts = [];
+        $power_counts = [];
+        foreach ($power_list as $pl){
+            $json = json_decode($pl->json, true);
+            foreach ($json as $key=>$val){
+                $tjson = [];
+                foreach ($val as $k=>$v){
+                    $tjson[$v] = true;
+                }
+                if(isset($tjson['h'])){
+                    $t_type = 'h';
+                }elseif(isset($tjson['w'])){
+                    $t_type = 'w';
+                }elseif(isset($tjson['r'])){
+                    $t_type = 'r';
+                }else{
+                    $t_type = 'a';
+                }
+                if(!isset($power_counts[$pl->sys_menu_id][$key])){
+                    $power_counts[$pl->sys_menu_id][$key] = 1;
+                }else{
+                    $power_counts[$pl->sys_menu_id][$key] ++;
+                }
+                $power_ts[$pl->sys_menu_id][$pl->user_role_id][$key] = $t_type;
+            }
+        }
+        $power_has = [];
+        $role_id_count = count($roles);
+        foreach ($power_counts as $key=>$val){
+            foreach ($val as $k=>$v){
+                if($v >= $role_id_count){
+                    $power_has[$key][$k] = true;
+                }
+            }
+        }
+        $power = [];
+        foreach ($power_has as $key=>$val){
+            $pvs = $power_ts[$key];
+            $kvs = [];
+            foreach ($pvs as $k=>$v){
+                foreach ($v as $kk=>$vv) {
+                    if (isset($val[$kk])) {
+                        $kvs[$kk][$vv] = true;
+                    }
+                }
+            }
+            $kvs_real = [];
+            foreach ($kvs as $k=>$v){
+                if(isset($v['w'])){
+                    $vtag = 'w';
+                }elseif(isset($v['r'])){
+                    $vtag = 'r';
+                }elseif(isset($v['h'])){
+                    $vtag = 'h';
+                }else{
+                    $vtag = 'a';
+                }
+                $kvs_real[$k] = $vtag;
+            }
+            $power[$key] = $kvs_real;
+        }
+        $uinfo = DB::connection("hr")->table('UserInfo')->where("UserCode", "=", $usercode)->first();
+        //第二期时修改的
+        $eruinfo=DB::connection("inq_quo")->table('UserInfo')->where("UserCode", "=", $usercode)->first();
+        $errolename=DB::connection("inq_quo")->table('RoleInfo')->where("DocEntry", "=", $eruinfo->RoleCode)->first();
+//        dd($eruinfo);
+        //第二期时修改的 end
+        $userinfo = [
+            'usercode' => $eruinfo->UserCode,
+            'username' => $eruinfo->UserName,
+            'userid' => $eruinfo->DocEntry,
+            'email' => $uinfo->Email,
+            'mobile' => $uinfo->MobileNo,
+            'fd_status' => $uinfo->fd_status,
+            'posttype' => $uinfo->PostType,
+            'area' => $uinfo->Area,
+            'deptname' => $uinfo->LDeptName,
+            'token' => $token,
+            'role' => $errolename->RoleName,
+            'power' => $power,
+            'menus' => $menus,
+            'menu_dirs' => $menu_dirs
+        ];
+        $temparr=array();
+        if($userinfo['role'] == '销售'){
+            $temparr[]=1;
+        }elseif($userinfo['role']== '采购'){
+            $temparr[]=2;
+        }elseif($userinfo['role']== '管理员'){
+            $temparr[]=3;
+        }elseif($userinfo['role']== '销售经理'){
+            $temparr[]=4;
+        }elseif($userinfo['role']== '采购经理'){
+            $temparr[]=5;
+        }elseif($userinfo['role']=='销售助理'||$userinfo['role']=='销售组长'){
+            $temparr[]=6;
+        }elseif($userinfo['role']=='采购助理'||$userinfo['role']=='采购组长'){
+            $temparr[]=7;
+        }elseif($userinfo['role']=='管理员2'){
+            $temparr[]=8;
+        }
+        if(!in_array(3,$temparr)&&!in_array(8,$temparr)){
+            unset($userinfo['menu_dirs']["inq_quo/finance"]);
+            unset($userinfo['menu_dirs']["inq_quo/finance/currency"]);
+            unset($userinfo['menu_dirs']["inq_quo/finance/pay"]);
+            unset($userinfo['menu_dirs']["inq_quo/mechanism"]);
+            unset($userinfo['menu_dirs']["inq_quo/mechanism/departmental_files"]);
+            unset($userinfo['menu_dirs']["inq_quo/mechanism/personnel_files"]);
+            unset($userinfo['menu_dirs']["inq_quo/mechanism/role_files"]);
+        }
+        if(in_array(8,$temparr)){
+            unset($userinfo['menu_dirs']["inq_quo/business"]);
+            unset($userinfo['menu_dirs']["inq_quo/business/enquiry"]);
+            unset($userinfo['menu_dirs']["inq_quo/business/follow"]);
+            unset($userinfo['menu_dirs']["inq_quo/business/purchaseorder"]);
+            unset($userinfo['menu_dirs']["inq_quo/business/salesorder"]);
+            unset($userinfo['menu_dirs']["inq_quo/business/salesorder_bom"]);
+            unset($userinfo['menu_dirs']["inq_quo/merchant_archives"]);
+            unset($userinfo['menu_dirs']["inq_quo/merchant_archives/address_files"]);
+            unset($userinfo['menu_dirs']["inq_quo/merchant_archives/bank_files"]);
+            unset($userinfo['menu_dirs']["inq_quo/merchant_archives/contacts_files"]);
+            unset($userinfo['menu_dirs']["inq_quo/merchant_archives/customer_files"]);
+            unset($userinfo['menu_dirs']["inq_quo/merchant_archives/supplier_files"]);
+            unset($userinfo['menu_dirs']["inq_quo/stock"]);
+            unset($userinfo['menu_dirs']["inq_quo/stock/brand"]);
+            unset($userinfo['menu_dirs']["inq_quo/stock/stock_class"]);
+            unset($userinfo['menu_dirs']["inq_quo/stock/stock_files"]);
+            unset($userinfo['menu_dirs']["inq_quo/stock/unit_files"]);
+        }
+        if(in_array(2,$temparr)||in_array(5,$temparr)||in_array(7,$temparr)){
+            unset($userinfo['menu_dirs']["inq_quo/merchant_archives/customer_files"]);
+            unset($userinfo['menu_dirs']["inq_quo/business/salesorder"]);
+            unset($userinfo['menu_dirs']["inq_quo/business/salesorder_bom"]);
+
+        }
+        if(in_array(1,$temparr)||in_array(4,$temparr)||in_array(6,$temparr)){
+            unset($userinfo['menu_dirs']["inq_quo/merchant_archives/supplier_files"]);
+            unset($userinfo['menu_dirs']["inq_quo/business/purchaseorder"]);
+
+        }
+        Cache::put($tokenid, $token, $exp_time);
+        Cache::put($cid, $userinfo, $exp_time);
+        return $userinfo;
+    }
+
+    private function err_page($msg){
+        if(count($_POST) > 0){
+            EXITJSON(0, $msg);
+        }else{
+            echo view("sys/public/layout/www/web/err", [
+                'msg' => $msg
+            ]);
+            exit();
+        }
+    }
+}
