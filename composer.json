@@ -1,12 +1,13 @@
 {
     "name": "tphps/apcu",
     "description": "TPHP Framework",
-    "license": "TPHP",
     "authors": [
         {
             "name": "yuxing",
             "email": "336296@qq.com"
         }
     ],
-    "require": {}
+    "require": {
+        "tphps/apcu": "^1.1"
+    }
 }
