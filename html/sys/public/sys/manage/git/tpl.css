@@ -1,0 +1,35 @@
+.nav{
+    padding: 10px;
+    border-bottom: 1px #DDD solid;
+    background-color: #F8F8F8;
+    position: fixed;
+    width: 100%;
+}
+
+.layui-git{
+    border-color: #BDF;
+    color: #69F;
+}
+.layui-git:hover{
+    border-color: #39F;
+    color: #06F;
+}
+
+.js_git_reset{
+    border-color: #FCC;
+    color: #F66;
+}
+.js_git_reset:hover{
+    border-color: #F33;
+    color: #F00;
+}
+
+.main{
+    padding-top: 43px;
+}
+
+.main .text{
+    padding: 20px;
+    overflow-y: scroll;
+    height: 100%;
+}

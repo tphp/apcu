@@ -1,0 +1,33 @@
+{
+    "name": "tphp/apcu",
+    "description": "TPHP Framework",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "TPHP",
+            "email": "336296@qq.com"
+        }
+    ],
+    "require": {
+        "php": ">=7.2",
+        "laravel/framework": ">=5.6",
+        "phpoffice/phpspreadsheet": "^1.13",
+        "tphp/apcu-static": "^1.0.0"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Tphp\\Apcu\\TphpServiceProvider"
+            ]
+        }
+    },
+    "autoload": {
+        "classmap": [
+            "src/"
+        ],
+        "files": [
+            "src/Common/functions.php"
+        ]
+    }
+}
+

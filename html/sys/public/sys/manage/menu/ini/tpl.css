@@ -1,0 +1,40 @@
+.js_view_code{
+    color:#08F;
+    cursor: pointer;
+}
+
+.js_view_next{
+    color:#08F;
+    cursor: pointer;
+    float: right;
+}
+.js_view_next:hover{
+    color:#06F;
+}
+
+.code{
+    overflow: hidden;
+    border-top: 1px #e6e6e6 solid;
+    left: 0;
+    right: 0;
+    height: auto;
+    font-size: 14px !important;
+    line-height: 18px !important;
+    margin: 10px -15px -10px -15px;
+}
+
+.layui-colla-item h2:hover{
+    color:#08F;
+}
+
+.layui-colla-content .layui-colla-content{
+    background-color: #F8F8F8;
+}
+.css-main-inner{
+    margin-bottom: 15px;
+    border: 1px #e6e6e6 solid;
+    padding: 15px;
+}
+.css-main-inner .code{
+    margin-bottom: -15px;
+}

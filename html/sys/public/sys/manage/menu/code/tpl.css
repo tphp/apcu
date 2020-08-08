@@ -1,0 +1,45 @@
+.layui-tab{
+    margin: 0px;
+}
+.layui-tab-content{
+    padding: 0px;
+    margin-top: 41px;
+    height: 100%;
+}
+
+.layui-tab-title{
+    position: absolute;
+    z-index: 9999;
+    width: 100%;
+}
+.layui-tab-title li{
+    min-width: auto;
+}
+.red{
+    color: #F00;
+}
+
+.js_code{
+    overflow: hidden;
+    border: 1px #CCC solid;
+    left: 0;
+    right: 0;
+    height: 100%;
+    font-size: 14px !important;
+    line-height: 18px !important;
+    border-left: 0px;
+    border-right: 0px;
+}
+
+.js_btn_left, .js_btn_right{
+    margin: 10px;
+    margin-bottom: 0px;
+    float: left;
+}
+.js_btn_right{
+    float: right;
+}
+
+.js_btn_change{
+    display: none;
+}

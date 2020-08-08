@@ -1,0 +1,30 @@
+_CLASS_ > ul {
+    padding:7px;margin:3px;
+}
+_CLASS_ > ul > li {
+    display: inline;
+}
+_CLASS_ > ul > li > a,
+_CLASS_ > ul > li > span {
+    border:#000000 1px solid;padding:2px 5px;margin:2px;color:#000000;text-decoration:none;
+}
+_CLASS_ > ul > li > a:hover,
+_CLASS_ > ul > li > a:focus {
+    border:#000000 1px solid;color:#fff;background-color:#000;
+}
+_CLASS_ > ul > .active > a,
+_CLASS_ > ul > .active > span,
+_CLASS_ > ul > .active > a:hover,
+_CLASS_ > ul > .active > span:hover,
+_CLASS_ > ul > .active > a:focus,
+_CLASS_ > ul > .active > span:focus {
+    border:#000000 1px solid;padding:2px 5px;font-weight:bold;margin:2px;color:#fff;background-color:#000000;
+}
+_CLASS_ > ul > .disabled > span,
+_CLASS_ > ul > .disabled > span:hover,
+_CLASS_ > ul > .disabled > span:focus {
+    border:#eee 1px solid;padding:2px 5px;margin:2px;color:#ddd;
+}
+.clear{
+    clear: both;
+}
