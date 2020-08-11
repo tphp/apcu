@@ -43,6 +43,15 @@ class ApiController
     }
 
     /**
+     * 键值转化为小写
+     * @param $value
+     * @return mixed
+     */
+    private function keyToLower($value){
+        return $this->tplclass->keyToLower($value);
+    }
+
+    /**
      * 获取随机字符串
      * @param int $length
      * @param string $char
@@ -583,7 +592,7 @@ class ApiController
         $childlist = $mod->get();
         $childs = [];
         foreach ($childlist as $key=>$val){
-            $val = $this->tplclass->keyToLower($val);
+            $val = $this->keyToLower($val);
             $childs[] = $val[$child];
             $retlist[$values]['list'][] = [
                 'key' => $val[$child],
@@ -596,7 +605,7 @@ class ApiController
         if(!empty($notvalues)) $mod2->whereNotIn($child, $notvalues);
         $grouplist = $mod2->groupBy($parent)->get();
         foreach ($grouplist as $key=>$val){
-            $val = $this->tplclass->keyToLower($val);
+            $val = $this->keyToLower($val);
             $retlist[$values]['listmore'][$val[$parent]] = $val['count'];
         }
 
@@ -605,7 +614,7 @@ class ApiController
         }else{
             $parentinfo = $this->tplclass->db($table, $conn)->select($child, $parent, $oper_title)->where($child, $values)->first();
             if(!empty($parentinfo)){
-                $parentinfo = $this->tplclass->keyToLower($parentinfo);
+                $parentinfo = $this->keyToLower($parentinfo);
                 $nextvalues = trim($parentinfo[$parent]);
                 $retlist[$values]['name'] = "请选择";
                 if($istree && $nextvalues != "") return $this->getTreeList($tree, $nextvalues, $notvalues, $istree, $retlist);
@@ -636,7 +645,7 @@ class ApiController
         $list = $mod->get();
         $values = [];
         foreach ($list as $key=>$val){
-            $val = $this->tplclass->keyToLower($val);
+            $val = $this->keyToLower($val);
             $ret[$val[$parent]][$val[$child]] = [
                 'name' => $val[$name],
             ];
@@ -1242,7 +1251,7 @@ class ApiController
                         $vids = [];
                         $parents = [];
                         foreach ($vlist as $vk => $vv) {
-                            $vv = $this->tplclass->keyToLower($vv);
+                            $vv = $this->keyToLower($vv);
                             $vids[] = $vv[$vchild];
                             $parents[$vv[$vchild]] = [
                                 'name' => $vv[$vname],
@@ -1255,7 +1264,7 @@ class ApiController
                             // 如果搜索组合大于1时需要进行拼合处理
                             $pids = [];
                             foreach ($vlist as $vk => $vv) {
-                                $vv = $this->tplclass->keyToLower($vv);
+                                $vv = $this->keyToLower($vv);
                                 if (!isset($parents[$vv[$vparent]])) {
                                     $pids[] = $vv[$vparent];
                                 }
@@ -1265,7 +1274,7 @@ class ApiController
                                 $vlist = $this->tplclass->db($vtable, $vconn)->whereIn($vchild, $pids)->get();
                                 $pids = [];
                                 foreach ($vlist as $vk => $vv) {
-                                    $vv = $this->tplclass->keyToLower($vv);
+                                    $vv = $this->keyToLower($vv);
                                     if (!isset($parents[$vv[$vchild]])) {
                                         $parents[$vv[$vchild]] = [
                                             'name' => $vv[$vname],
@@ -1320,7 +1329,7 @@ class ApiController
                             $vlist = $this->tplclass->db($vtable, $vconn)->whereIn($vparent, $vids)->get();
                             $vids = [];
                             foreach ($vlist as $vk => $vv) {
-                                $vv = $this->tplclass->keyToLower($vv);
+                                $vv = $this->keyToLower($vv);
                                 if (!$idskv[$vv[$vchild]]) {
                                     $idskv[$vv[$vchild]] = true;
                                     $vids[] = $vv[$vchild];
@@ -1351,7 +1360,7 @@ class ApiController
                             $gfcids = [];
                             $gfclist = $this->tplclass->db($gfc['link']['table'], $gfc['link']['conn'])->whereIn($thiskey, explode(",", $val))->select($defkey, $thiskey)->get();
                             foreach ($gfclist as $gfcval){
-                                $gfcval = $this->tplclass->keyToLower($gfcval);
+                                $gfcval = $this->keyToLower($gfcval);
                                 $gfcids[] = $gfcval[$defkey];
                             }
                             $gfcids = array_unique($gfcids);
@@ -1438,7 +1447,7 @@ class ApiController
                             $fl = $fmod->get();
                             $fls = [];
                             foreach ($fl as $fv){
-                                $fv = $this->tplclass->keyToLower($fv);
+                                $fv = $this->keyToLower($fv);
                                 $fls[] = $fv[$ffld];
                             }
                             if(empty($fls)){
@@ -1456,7 +1465,7 @@ class ApiController
                                 $fl = $this->tplclass->db($ftable, $fconn)->select($ffld)->whereIn($fv[2], $fls)->get();
                                 $fls = [];
                                 foreach ($fl as $fvv){
-                                    $fvv = $this->tplclass->keyToLower($fvv);
+                                    $fvv = $this->keyToLower($fvv);
                                     $fls[] = $fvv[$ffld];
                                 }
                                 $fu_field = $fv[2];
@@ -1515,7 +1524,7 @@ class ApiController
         $countlist = $this->tplclass->db()->select(\DB::raw("count(*) as count, {$p}"))->whereIn($p, $cids)->groupBy($p)->get();
         $countkv = [];
         foreach ($countlist as $key=>$val){
-            $val = $this->tplclass->keyToLower($val);
+            $val = $this->keyToLower($val);
             $countkv[$val[$p]] = $val['count'];
         }
         foreach ($srcdata as $key => $val) {
@@ -1613,7 +1622,7 @@ class ApiController
                     $lv = strtolower($linfo['link']['this_key']);
                     $llist = $this->tplclass->db($linfo['link']['table'], $linfo['link']['conn'])->whereIn($lk, $lkeys)->select($lk, $lv)->get();
                     foreach ($llist as $lval){
-                        $lval = $this->tplclass->keyToLower($lval);
+                        $lval = $this->keyToLower($lval);
                         $lkv[$lval[$lk]][] = $lval[$lv];
                     }
                     foreach ($data['src'] as $k=>$v){
@@ -1664,7 +1673,7 @@ class ApiController
                     $vkv = [];
                     $parent_ids = [];
                     foreach ($vlist as $vval) {
-                        $vval = $this->tplclass->keyToLower($vval);
+                        $vval = $this->keyToLower($vval);
                         $vkv[$vval[$vchild_name]] = [
                             'parent' => $vval[$vparent_name],
                             "name" => $vval[$vt_name]
@@ -1679,7 +1688,7 @@ class ApiController
                             $vlist = $this->tplclass->db($vtable, $vconn)->whereIn($vchild_name, $parent_ids)->get();
                             $parent_ids = [];
                             foreach ($vlist as $vval) {
-                                $vval = $this->tplclass->keyToLower($vval);
+                                $vval = $this->keyToLower($vval);
                                 $parent_kvs[$vval[$vchild_name]] = [
                                     'parent' => $vval[$vparent_name],
                                     "name" => $vval[$vt_name]
@@ -2323,7 +2332,7 @@ class ApiController
                     if(count($val) <= 2){
                         $k = strtolower($val[0]);
                         empty($kinfo) && $kinfo = $this->tplclass->db()->where($wheres)->first();
-                        $kinfo = $this->tplclass->keyToLower($kinfo);
+                        $kinfo = $this->keyToLower($kinfo);
                         $keywheres[$key][] = $kinfo[$k];
                     }
                 }
@@ -2334,7 +2343,7 @@ class ApiController
                 $fst = $keydb->first();
                 if(!empty($fst)){
                     $str = "";
-                    $fst = $this->tplclass->keyToLower($fst);
+                    $fst = $this->keyToLower($fst);
                     if(!empty($pk)) {
                         foreach ($pk as $val) {
                             $js = json_decode($val, true);
@@ -2619,7 +2628,7 @@ class ApiController
                                     $vlist = $vmod->get();
                                     $vids = [];
                                     foreach ($vlist as $kk=>$vv){
-                                        $vv = $this->tplclass->keyToLower($vv);
+                                        $vv = $this->keyToLower($vv);
                                         if($vv[$vparent] != $vvalue){
                                             $vids[] = $vv[$vparent];
                                         }
@@ -2659,7 +2668,7 @@ class ApiController
                         $defv = $this->tplclass->db($gfc['link']['table'], $gfc['link']['conn'])->where($gfc['link']['default_key'], "=", $v[$defkey])->get();
                         $defids = [];
                         foreach ($defv as $dv){
-                            $dv = $this->tplclass->keyToLower($dv);
+                            $dv = $this->keyToLower($dv);
                             $dvk = strtolower($gfc['link']['this_key']);
                             $defids[] = $dv[$dvk];
                         }
@@ -2781,7 +2790,7 @@ class ApiController
             if(!empty($tmpkvs)){
                 $tmpvals = [];
                 foreach ($tmpkvs as $key=>$val){
-                    $ch = $this->tplclass->keyToLower($val)[$child];
+                    $ch = $this->keyToLower($val)[$child];
                     $retkvs[] = $ch;
                     $tmpvals[] = $ch;
                 }
@@ -3033,7 +3042,7 @@ class ApiController
         if(empty($data)) $this->__exitError("数据设置出错");
 
         $pkarr = [];
-        $data = $this->tplclass->keyToLower($data);
+        $data = $this->keyToLower($data);
         foreach ($pks as $val){
             $pkarr[$val] = $data[$val];
         }
