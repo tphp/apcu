@@ -597,7 +597,7 @@ class ApiController
         $grouplist = $mod2->groupBy($parent)->get();
         foreach ($grouplist as $key=>$val){
             $val = $this->tplclass->keyToLower($val);
-            $retlist[$values]['listmore'][$val[$parent]] = $val->count;
+            $retlist[$values]['listmore'][$val[$parent]] = $val['count'];
         }
 
         if($values == $tree['value']) {
@@ -1516,7 +1516,7 @@ class ApiController
         $countkv = [];
         foreach ($countlist as $key=>$val){
             $val = $this->tplclass->keyToLower($val);
-            $countkv[$val[$p]] = $val->count;
+            $countkv[$val[$p]] = $val['count'];
         }
         foreach ($srcdata as $key => $val) {
             if(isset($countkv[$val[$c]])){
@@ -1652,7 +1652,7 @@ class ApiController
                 $def_table = $this->vim->config['config']['table'];
                 $def_conn = $this->vim->config['config']['conn'];
                 empty($def_conn) && $def_conn = $GLOBALS['DOMAIN_CONFIG']['conn'];
-                if((empty($vtable) || $vtable == $def_table) && (empty($conn) || $conn == $def_conn)){
+                if((empty($vtable) || $vtable == $def_table) && (empty($vconn) || $vconn == $def_conn)){
                     $is_this = true;
                 }
                 // 如果不为该表和数据库则执行操作，否则会发生循环BUG
