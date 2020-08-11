@@ -134,7 +134,7 @@ class SqlController{
             }
 
             foreach ($fieldsqls as $key => $val) {
-                $cn = trim($val['column_name']);
+                $cn = strtolower(trim($val['column_name']));
                 $dbdata[$val['table_name']]['field'][$cn] = [
                     'name' => $val['column_comment'],
                     'key' => $val['column_key'],
