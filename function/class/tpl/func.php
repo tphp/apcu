@@ -295,6 +295,49 @@ return function($data){
                     }
                 }
             }
+            
+            /**
+             * 获取字段数据
+             * @param null $keyname
+             * @return array|mixed|null
+             */
+            public function getField($keyname=null){
+                $field = $this->getView('field');
+                if(empty($keyname) || !is_string($keyname)){
+                    return $field;
+                }
+                return $field[$keyname];
+            }
+
+            /**
+             * 获取字段数据
+             * @param null $obj
+             * @param null $value
+             */
+            public function setField($obj=null, $value=null) {
+                $new_field = [];
+                if (is_string($obj)) {
+                    $new_field[$obj] = $value;
+                } elseif (is_array($obj)) {
+                    foreach ($obj as $key => $val) {
+                        if (is_string($key)) {
+                            $new_field[$key] = $val;
+                        }
+                    }
+                }
+                if (empty($new_field)) {
+                    return;
+                }
+                $field = $this->getField();
+                if(empty($old_field) || !is_array($old_field)){
+                    $field = $new_field;
+                }else{
+                    foreach ($field as $key=>$val){
+                        $field[$key] = $val;
+                    }
+                }
+                $this->setView('field', $field);
+            }
 
             /**
              * 判断是否是增加选项
