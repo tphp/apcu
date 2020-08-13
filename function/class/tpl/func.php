@@ -328,6 +328,13 @@ return function($data){
                 if (empty($new_field)) {
                     return;
                 }
+                if(empty($this->__handle_field__)){
+                    $this->__handle_field__ = $new_field;
+                }else{
+                    foreach ($new_field as $key=>$val){
+                        $this->__handle_field__[$key] = $val;
+                    }
+                }
                 $field = $this->getField();
                 if(empty($old_field) || !is_array($old_field)){
                     $field = $new_field;

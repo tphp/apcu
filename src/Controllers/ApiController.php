@@ -2456,6 +2456,13 @@ class ApiController
                 }
             }
         }
+        // 强制转化的值
+        $last_fd = $this->tplclass->__handle_field__;
+        if(!empty($last_fd) && is_array($last_fd)){
+            foreach ($last_fd as $key=>$val){
+                $fd[$key] = $val;
+            }
+        }
         return $fd;
     }
 

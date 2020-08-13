@@ -347,18 +347,17 @@ EOF
     /**
      * 获取Psqlite字段信息， 版本 Sqlite3
      * @param $db
-     * @param $database
      * @return array
      */
-    private function getDbSqlite($conn, $database){
+    private function getDbSqlite($conn){
         try{
             $db_file = $this->sqlconfig[$conn]['database'];
+            $newdbdata = [];
             if(!is_file($db_file)){
-                import('XSQLite', $db_file)->select("select 'add file' as msg");
+                return $newdbdata;
             }
             $db = DB::connection($conn);
             $table_list = $db->select("select name as 'table' from sqlite_master where type='table' and name<>'sqlite_sequence' order by name");
-            $newdbdata = [];
             if(empty($table_list)){
                 return $newdbdata;
             }
@@ -415,7 +414,7 @@ EOF
             } elseif ($type == 'pgsql') {
                 return $this->getDbPgsql($conn, $database);
             } elseif ($type == 'sqlite') {
-                return $this->getDbSqlite($conn, $database);
+                return $this->getDbSqlite($conn);
             }
         }catch (\Exception $e){
 		    return [];
