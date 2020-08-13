@@ -30,6 +30,7 @@ return function($data){
 
 			private static $tmp_field = []; //临时存储字段信息
 			private static $tmp_pages = []; //临时存储分页信息
+            private $_data_type_list = ['sql', 'sqlfind', 'api']; //查询格式
 
 			function __construct($tpl = '', $roottpl = '') {
 			    if($tpl === false){
@@ -838,7 +839,7 @@ return function($data){
                 if(!isset($data)){
                     $data = $this->setDataInfo();
                 }
-                if(in_array($data['type'], ['sql', 'sqlfind'])){
+                if(in_array($data['type'], $this->_data_type_list)){
                     if(empty($conn)) {
                         $conn = $data['config']['conn'];
                         if (empty($conn)) {
@@ -859,15 +860,15 @@ return function($data){
 
             /**
              * 获取数据库表字段信息
-             * @param string $connname 数据库配置名称
-             * @param string $tablename 表名称
-             * @param string $fieldname 字段名称
+             * @param string $conn 数据库配置名称
+             * @param int $table 表名称
+             * @param string $field 字段名称
              * @return array
              */
 			public function dbInfo($conn="", $table=-100, $field=""){
                 $data = $this->setDataInfo();
 
-                if(in_array($data['type'], ['sql', 'sqlfind'])){
+                if(in_array($data['type'], $this->_data_type_list)){
                     $isconfig = true;
                 }else{
                     $isconfig = false;
@@ -905,23 +906,24 @@ return function($data){
 			 */
 			public function dbSelect($sqlstr, $conn = ""){
                 $data = $this->setDataInfo();
-				if(in_array($data['type'], ['sql', 'sqlfind'])){
+				if(in_array($data['type'], $this->_data_type_list)){
 					empty($conn) && $conn = $data['config']['conn'];
 				}
 
 				if(empty($conn)){
 					$conn = config('database.default');
 				}
+				$max_row = 1000;
 				$sqltype = strtolower(trim(config("database.connections.{$conn}.driver")));
-				if($sqltype == 'mysql'){
+				if(in_array($sqltype, ['mysql', 'sqlite', 'pgsql'])){
 					if(stripos($sqlstr, " limit ") <= 0){
-						$sqlstr = $sqlstr." limit 0, 1000";
+                        $sqlstr = $sqlstr." limit {$max_row} offset 0";
 					}
 				}elseif($sqltype == 'sqlsrv'){
-					if(stripos($sqlstr, " top ") <= 0){
-						$sqlstr = str_ireplace("select", "select top 1000", $sqlstr);
-					}
-				}
+                    if(stripos($sqlstr, " top ") <= 0){
+                        $sqlstr = str_ireplace("select", "select top {$max_row}", $sqlstr);
+                    }
+                }
 
 				try{
 				    $list = \DB::connection($conn)->select($sqlstr);
@@ -1343,7 +1345,7 @@ return function($data){
                 if(file_exists($inipath)) {
                     $ini = include $inipath;
                     if(is_array($ini)) {
-                        if ($datatype == 'sql' || $datatype == 'sqlfind') {
+                        if (in_array($datatype, $this->_data_type_list)) {
                             if (!empty($ini)) {
                                 $ini = $this->keyToLower($ini);
                                 $sqlconfig = $ini['#sql'];
@@ -1566,13 +1568,15 @@ return function($data){
 			 * @return mixed
 			 */
 			private function getDataInfo($type, $config, $default){
-				if(in_array($type, ['sql', 'sqlfind'])){
+				if(in_array($type, $this->_data_type_list)){
                     $sql = $this->getSqlController();
 					if($type == 'sql'){
 						return $sql->select($config, $this->where, $this->page);
-					}else{
-						return $sql->find($config, $this->where);
-					}
+					}elseif($type == 'sqlfind'){
+                        return $sql->find($config, $this->where);
+                    }elseif($type == 'api'){
+                        return $sql->api($config, $this->page, $this->apifun->allfield);
+                    }
 				}
 				return [1, $default];
 			}
@@ -1591,10 +1595,10 @@ return function($data){
 				$type = strtolower($type);
                 $srcdata = [];
 				if(is_array($data)) {
-					if($type == 'sql' || $type == 'sqlfind') {
+					if(in_array($type, $this->_data_type_list)) {
 						$sqlconfig = $config['#sql'];
 						if(empty($sqlconfig)) return [$data, $data];
-                        if ($type == 'sql') {
+                        if ($type == 'sql' || $type == 'api') {
                             $c_config = [];
                             if(is_array($sqlconfig)){
                                 foreach ($sqlconfig as $key=>$val){

@@ -14,14 +14,14 @@ class SqlController{
         return SqlController::$sql_init;
     }
 
-	function __construct() {
-		$this->sqlconfig = $this->getSqlConfig();
+    function __construct() {
+        $this->sqlconfig = $this->getSqlConfig();
 //		dump($this->getDbConfig());
 //		dump($this->getDbInfo());
 //		dump($this->getDbInfo()['smchk']['tb']['t_cwdd1']);
-		$this->last_sql = "";
-		$this->db_cacheid = "apcu_sql_getDbInfoList";
-	}
+        $this->last_sql = "";
+        $this->db_cacheid = "apcu_sql_getDbInfoList";
+    }
 
     /**
      * 执行数据库语句
@@ -29,7 +29,7 @@ class SqlController{
      * @param string $sqlstr
      * @return bool
      */
-	public static function runDbExcute($db, $sqlstr=''){
+    public static function runDbExcute($db, $sqlstr=''){
         $ret = false;
         if(is_array($sqlstr)){
             foreach ($sqlstr as $s){
@@ -45,53 +45,53 @@ class SqlController{
         return $ret;
     }
 
-	/**
-	 * 获取MySql配置
-	 * @return array
-	 */
-	private function getSqlConfig(){
-		$config = config('database.connections');
-		$retcof = [];
-		foreach ($config as $key=>$val){
-			if(in_array($val['driver'], ['mysql', 'sqlsrv', 'pgsql', 'sqlite'])){
-				$retcof[$key] = $val;
-			}
-		}
-		return $retcof;
-	}
+    /**
+     * 获取MySql配置
+     * @return array
+     */
+    private function getSqlConfig(){
+        $config = config('database.connections');
+        $retcof = [];
+        foreach ($config as $key=>$val){
+            if(in_array($val['driver'], ['mysql', 'sqlsrv', 'pgsql', 'sqlite'])){
+                $retcof[$key] = $val;
+            }
+        }
+        return $retcof;
+    }
 
-	/**
-	 * 获取数据库配置
-	 * @return array
-	 */
-	private function getDbConfig(){
-		$config = $this->sqlconfig;
-		$ret = [];
-		foreach ($config as $key=>$val){
-			$db = strtolower(trim($val['database']));
-			$keylower = strtolower(trim($key));
-			$ret[$keylower] = [
-				'name' => $db,
-				'database' => $db,
-				'key' => $key
-			];
-		}
-		return $ret;
-	}
+    /**
+     * 获取数据库配置
+     * @return array
+     */
+    private function getDbConfig(){
+        $config = $this->sqlconfig;
+        $ret = [];
+        foreach ($config as $key=>$val){
+            $db = strtolower(trim($val['database']));
+            $keylower = strtolower(trim($key));
+            $ret[$keylower] = [
+                'name' => $db,
+                'database' => $db,
+                'key' => $key
+            ];
+        }
+        return $ret;
+    }
 
     /**
      * 列表转化为小写
      * @param $list
      * @return array
      */
-	private function listToLower($list){
-	    $ret = [];
-	    foreach ($list as $key=>$val){
-	        foreach ($val as $k=>$v){
+    private function listToLower($list){
+        $ret = [];
+        foreach ($list as $key=>$val){
+            foreach ($val as $k=>$v){
                 $ret[$key][strtolower($k)] = $v;
             }
         }
-	    return $ret;
+        return $ret;
     }
 
     /**
@@ -100,30 +100,31 @@ class SqlController{
      * @param string $name
      * @return array
      */
-    private function errorMessage($e=null, $name=''){
+    private function errorMessage($e=null, $name='', $conn=''){
         $sql_error_pass = 'SQL_ERROR_PASS';
         if(getenv($sql_error_pass)){
             return [];
         }
         $smsg = "{$name} 查询错误： 可修改.env文件 {$sql_error_pass}=true 跳过";
+        $dir_msg = "错误路径： database.connections.{$conn}";
         $msg = $e->getMessage();
         if(strpos($msg, "could not find driver") !== false){
             echo("<div>{$name} 扩展未安装</div>");
         }
         if(count($_POST) > 0){
-            EXITJSON(0, $smsg."\n".$msg);
+            EXITJSON(0, $smsg."\n".$dir_msg."\n".$msg);
         }else{
-            exit("<div>$smsg</div><div>$msg</div>");
+            exit("<div>$smsg</div><div>$dir_msg</div><div>$msg</div>");
         }
     }
 
-	/**
-	 * 获取MYSQL字段信息
-	 * @param $db
-	 * @param $database
-	 * @return array
-	 */
-	private function getDbMysql($conn, $database){
+    /**
+     * 获取MYSQL字段信息
+     * @param $conn
+     * @param $database
+     * @return array
+     */
+    private function getDbMysql($conn, $database){
         try {
             $db = DB::connection($conn);
             $tablesqls = $this->listToLower($db->select("select table_name, table_comment from information_schema.tables where table_schema='{$database}'"));
@@ -151,17 +152,16 @@ class SqlController{
             unset($dbdata);
             return $newdbdata;
         }catch (\Exception $e){
-            $this->errorMessage($e, 'Mysql');
+            $this->errorMessage($e, 'Mysql', $conn);
         }
-	}
+    }
 
-	/**
-	 * 获取MSSQL字段信息， 版本MSSQL2012
-	 * @param $db
-	 * @param $database
-	 * @return array
-	 */
-	private function getDbMssql($conn){
+    /**
+     * 获取MSSQL字段信息， 版本MSSQL2012
+     * @param $conn
+     * @return array
+     */
+    private function getDbMssql($conn){
         try{
             $db = DB::connection($conn);
             //遍历表
@@ -235,17 +235,16 @@ class SqlController{
             unset($dbdata);
             return $newdbdata;
         }catch (\Exception $e){
-            $this->errorMessage($e, 'Sqlserver');
+            $this->errorMessage($e, 'Sqlserver', $conn);
         }
-	}
+    }
 
     /**
      * 获取Pgsql字段信息， 版本 PostgreSQL 12.2
-     * @param $db
-     * @param $database
+     * @param $conn
      * @return array
      */
-    private function getDbPgsql($conn, $database){
+    private function getDbPgsql($conn){
         try{
             $db = DB::connection($conn);
             $table_list = $db->select(<<<EOF
@@ -259,7 +258,7 @@ and relname not like 'pg_%'
 and relname not like 'sql_%'
 order by relname
 EOF
-);
+            );
             $newdbdata = [];
             if(empty($table_list)){
                 return $newdbdata;
@@ -340,13 +339,13 @@ EOF
             unset($field_list);
             return $newdbdata;
         }catch (\Exception $e){
-            $this->errorMessage($e, 'PostgreSql');
+            $this->errorMessage($e, 'PostgreSql', $conn);
         }
     }
 
     /**
-     * 获取Psqlite字段信息， 版本 Sqlite3
-     * @param $db
+     * 获取Sqlite字段信息， 版本 Sqlite3
+     * @param $conn
      * @return array
      */
     private function getDbSqlite($conn){
@@ -393,34 +392,34 @@ EOF
             unset($table_list);
             return $newdbdata;
         }catch (\Exception $e){
-            $this->errorMessage($e, 'Sqlite3');
+            $this->errorMessage($e, 'Sqlite3', $conn);
         }
     }
 
-	/**
-	 * 获取数据库字段命名信息
-	 * @param $conn
-	 * @param $database
-	 * @return array
-	 */
-	private function getDb($conn, $database){
-		$type = $this->sqlconfig[$conn]['driver'];
+    /**
+     * 获取数据库字段命名信息
+     * @param $conn
+     * @param $database
+     * @return array
+     */
+    private function getDb($conn, $database){
+        $type = $this->sqlconfig[$conn]['driver'];
 
-		try {
+        try {
             if ($type == 'mysql') {
                 return $this->getDbMysql($conn, $database);
             } elseif ($type == 'sqlsrv') {
                 return $this->getDbMssql($conn, $database);
             } elseif ($type == 'pgsql') {
-                return $this->getDbPgsql($conn, $database);
+                return $this->getDbPgsql($conn);
             } elseif ($type == 'sqlite') {
                 return $this->getDbSqlite($conn);
             }
         }catch (\Exception $e){
-		    return [];
+            return [];
         }
 
-	}
+    }
 
     /**
      * 获取数据库配置详情
@@ -428,238 +427,238 @@ EOF
      * @return mixed
      */
     private function getDbInfoListDetail($dbinfo){
-	    foreach ($dbinfo as $key=>$val){
+        foreach ($dbinfo as $key=>$val){
             $tb = $dbinfo[$key]['tb'];
             $dbinfo[$key]['tb'] = Cache::get($tb);
         }
-	    return $dbinfo;
+        return $dbinfo;
     }
-	/**
-	 * 获取数据库配置
-	 * @return array
-	 */
-	private function getDbInfoList(){
-		$cacheid = $this->db_cacheid;
-		$dbinfo = Cache::get($cacheid);
-		if(!empty($dbinfo)) return $this->getDbInfoListDetail($dbinfo);
-		$ttl = 60 * 60;
-		$ttl_sub = $ttl + 60;
-		$dbinfo = $this->getDbConfig();
-		foreach ($dbinfo as $key=>$val){
+    /**
+     * 获取数据库配置
+     * @return array
+     */
+    private function getDbInfoList(){
+        $cacheid = $this->db_cacheid;
+        $dbinfo = Cache::get($cacheid);
+        if(!empty($dbinfo)) return $this->getDbInfoListDetail($dbinfo);
+        $ttl = 60 * 60;
+        $ttl_sub = $ttl + 60;
+        $dbinfo = $this->getDbConfig();
+        foreach ($dbinfo as $key=>$val){
             $tb_info = $this->getDb($val['key'], $val['database']);
             $cacheid_sub = $cacheid."_{$key}";
-			$dbinfo[$key]['tb'] = $cacheid_sub;
+            $dbinfo[$key]['tb'] = $cacheid_sub;
             Cache::put($cacheid_sub, $tb_info, $ttl_sub);
-		}
-		Cache::put($cacheid, $dbinfo, $ttl);
-		return $this->getDbInfoListDetail($dbinfo);
-	}
+        }
+        Cache::put($cacheid, $dbinfo, $ttl);
+        return $this->getDbInfoListDetail($dbinfo);
+    }
 
-	/**
-	 * 获取数据库配置
-	 * @return array
-	 */
-	private function getDbInfo($name = ""){
-		$dbinfo = $this->getDbInfoList();
-		if(empty($name)) return $dbinfo;
-		return $dbinfo[$name];
-	}
+    /**
+     * 获取数据库配置
+     * @return array
+     */
+    private function getDbInfo($name = ""){
+        $dbinfo = $this->getDbInfoList();
+        if(empty($name)) return $dbinfo;
+        return $dbinfo[$name];
+    }
 
-	/**
-	 * 验证数据库是否可用
-	 * @param $data
-	 * @return array
-	 */
-	private function checkDb(&$data){
-		$table = strtolower($data['table']);
-		if(empty($table)) return [0, '表不能为空'];
-		$data['table'] = $table;
+    /**
+     * 验证数据库是否可用
+     * @param $data
+     * @return array
+     */
+    private function checkDb(&$data){
+        $table = strtolower($data['table']);
+        if(empty($table)) return [0, '表不能为空'];
+        $data['table'] = $table;
 
-		$conn = $data['conn'];
-		empty($conn) && $conn = config('database.default');
+        $conn = $data['conn'];
+        empty($conn) && $conn = config('database.default');
 
-		$db = $this->getDbInfo($conn);
-		if(empty($db)) return [0, $conn.'数据库未找到'];
-		$data['conn'] = $conn;
+        $db = $this->getDbInfo($conn);
+        if(empty($db)) return [0, $conn.'数据库未找到'];
+        $data['conn'] = $conn;
 
-		$prefix = strtolower(trim($this->sqlconfig[$conn]['prefix']));
+        $prefix = strtolower(trim($this->sqlconfig[$conn]['prefix']));
 
-		$dbtb = $db['tb'];
-		$tb = $dbtb[$prefix.$table];
-		if(empty($tb)) return [0, $conn."->".$prefix.$table.'表不存在'];
+        $dbtb = $db['tb'];
+        $tb = $dbtb[$prefix.$table];
+        if(empty($tb)) return [0, $conn."->".$prefix.$table.'表不存在'];
 
-		$field = $data['field'];
-		$tbfield = $tb['field'];
-		if(empty($field)) return [1, [
-			'set' => $tbfield,
-			'show' => $tbfield,
-			'all' => $tbfield
-		]];
+        $field = $data['field'];
+        $tbfield = $tb['field'];
+        if(empty($field)) return [1, [
+            'set' => $tbfield,
+            'show' => $tbfield,
+            'all' => $tbfield
+        ]];
 
-		/**处理设置字段,字段信息如下：
-		'field' => ['id', 'id', 'name',
-			[
-				['order', 'id', 'sourceid', ['type'=>'order_type']],
-				['member', 'id', 'mid', 'account']
-			]...
-		]*/
+        /**处理设置字段,字段信息如下：
+        'field' => ['id', 'id', 'name',
+        [
+        ['order', 'id', 'sourceid', ['type'=>'order_type']],
+        ['member', 'id', 'mid', 'account']
+        ]...
+        ]*/
 
-		$fieldstr = []; //字符串字段
-		$fieldarr = []; //数组字段（高级处理字段）
-		foreach ($field as $val) {
-			if(is_string($val)){
-				$fieldstr[] = $val;
-			}elseif(is_array($val) && count($val) > 0){
-				$fieldarr[] = $val;
-			}
-		}
-		$fieldstr = array_unique($fieldstr);
+        $fieldstr = []; //字符串字段
+        $fieldarr = []; //数组字段（高级处理字段）
+        foreach ($field as $val) {
+            if(is_string($val)){
+                $fieldstr[] = $val;
+            }elseif(is_array($val) && count($val) > 0){
+                $fieldarr[] = $val;
+            }
+        }
+        $fieldstr = array_unique($fieldstr);
 
-		$fieldshow = [];
-		$fieldset = [];
-		foreach ($fieldstr as $val){
-			$val = strtolower(trim($val));
-			if(!empty($tbfield[$val])){
-				$fieldshow[$val] = $fieldset[$val] = $tbfield[$val];
-			}
-		}
+        $fieldshow = [];
+        $fieldset = [];
+        foreach ($fieldstr as $val){
+            $val = strtolower(trim($val));
+            if(!empty($tbfield[$val])){
+                $fieldshow[$val] = $fieldset[$val] = $tbfield[$val];
+            }
+        }
 
-		$fieldnext = [];
-		$fieldadds = [];
-		foreach ($fieldarr as $key=>$val){
-			$ttb = $tb;
-			$ttb['table'] = $table;
+        $fieldnext = [];
+        $fieldadds = [];
+        foreach ($fieldarr as $key=>$val){
+            $ttb = $tb;
+            $ttb['table'] = $table;
 
-			$vallen = count($val) - 1;
-			for($i = $vallen; $i >= 0; $i --){
-				if(empty($val[$i][3])){
-					unset($val[$i]);
-				}else{
-					break;
-				}
-			}
-			if(empty($val)) continue;
+            $vallen = count($val) - 1;
+            for($i = $vallen; $i >= 0; $i --){
+                if(empty($val[$i][3])){
+                    unset($val[$i]);
+                }else{
+                    break;
+                }
+            }
+            if(empty($val)) continue;
 
-			foreach ($val as $k=>$v) {
-			    if(!is_array($v)) return [0, $conn."->{$table} 配置有误: {$k}=>{$v}"];
-				$v[1] = strtolower(trim($v[1]));
-				$v[2] = strtolower(trim($v[2]));
-				$vtbs = $v[0];
-				$vconn = $conn;
-				if(is_array($vtbs)){
-					if(empty($vtbs[1])){
-						$vtb = strtolower(trim($vtbs[0]));
-						$vprefix = $prefix;
-						$vdbtb = $dbtb;
-					}else{
-						$vtb = strtolower(trim($vtbs[0]));
-						$vconn = $vtbs[1];
-						empty($vconn) && $vconn = config('database.default');
-						$vdb = $this->getDbInfo($vconn);
-						if(empty($vdb)) return [0, $vconn.'数据库未找到'];
-						$vprefix = strtolower(trim($this->sqlconfig[$vconn]['prefix']));
+            foreach ($val as $k=>$v) {
+                if(!is_array($v)) return [0, $conn."->{$table} 配置有误: {$k}=>{$v}"];
+                $v[1] = strtolower(trim($v[1]));
+                $v[2] = strtolower(trim($v[2]));
+                $vtbs = $v[0];
+                $vconn = $conn;
+                if(is_array($vtbs)){
+                    if(empty($vtbs[1])){
+                        $vtb = strtolower(trim($vtbs[0]));
+                        $vprefix = $prefix;
+                        $vdbtb = $dbtb;
+                    }else{
+                        $vtb = strtolower(trim($vtbs[0]));
+                        $vconn = $vtbs[1];
+                        empty($vconn) && $vconn = config('database.default');
+                        $vdb = $this->getDbInfo($vconn);
+                        if(empty($vdb)) return [0, $vconn.'数据库未找到'];
+                        $vprefix = strtolower(trim($this->sqlconfig[$vconn]['prefix']));
 
-						$vdbtb = $vdb['tb'];
-						$vvtb = $vdbtb[$vprefix.$vtb];
-						if(empty($vvtb)) return [0, $vconn."中".$vprefix.$vtb.'表不存在'];
-					}
-				}else{
-					$vtb = strtolower(trim($vtbs));
-					$vprefix = $prefix;
-					$vdbtb = $dbtb;
-				}
-				$ttbnext = $vdbtb[$vprefix . $vtb];
-				if(!isset($ttbnext['field'])) return [0, $vconn."->{$vtb} 不存在"];
-				if(!isset($ttbnext['field'][$v[1]])) return [0, $vconn."->{$vtb} 中的字段 {$v[1]} 不存在"];
-				if(!isset($ttb['field'][$v[2]])) return [0, $vconn."->{$ttb['table']} 中的字段 {$v[2]} 不存在"];
-				if(!empty($v[3])) {
-					$tas = [];
-					if (is_string($v[3])) {
-						$vas = strtolower(trim($v[3]));
-						$tas[$vas] = $vas;
-					} else {
-						foreach ($v[3] as $kk => $vv) {
-							if (is_string($vv) || is_numeric($vv)) {
-								if (is_string($kk)) {
-									$tas[strtolower(trim($kk))] = strtolower(trim($vv));
-								} else {
-									$vas = strtolower(trim($vv));
-									$tas[$vas] = $vas;
-								}
-							}
-						}
-					}
+                        $vdbtb = $vdb['tb'];
+                        $vvtb = $vdbtb[$vprefix.$vtb];
+                        if(empty($vvtb)) return [0, $vconn."中".$vprefix.$vtb.'表不存在'];
+                    }
+                }else{
+                    $vtb = strtolower(trim($vtbs));
+                    $vprefix = $prefix;
+                    $vdbtb = $dbtb;
+                }
+                $ttbnext = $vdbtb[$vprefix . $vtb];
+                if(!isset($ttbnext['field'])) return [0, $vconn."->{$vtb} 不存在"];
+                if(!isset($ttbnext['field'][$v[1]])) return [0, $vconn."->{$vtb} 中的字段 {$v[1]} 不存在"];
+                if(!isset($ttb['field'][$v[2]])) return [0, $vconn."->{$ttb['table']} 中的字段 {$v[2]} 不存在"];
+                if(!empty($v[3])) {
+                    $tas = [];
+                    if (is_string($v[3])) {
+                        $vas = strtolower(trim($v[3]));
+                        $tas[$vas] = $vas;
+                    } else {
+                        foreach ($v[3] as $kk => $vv) {
+                            if (is_string($vv) || is_numeric($vv)) {
+                                if (is_string($kk)) {
+                                    $tas[strtolower(trim($kk))] = strtolower(trim($vv));
+                                } else {
+                                    $vas = strtolower(trim($vv));
+                                    $tas[$vas] = $vas;
+                                }
+                            }
+                        }
+                    }
 
-					foreach ($tas as $kk => $vv){
-						if(!isset($ttbnext['field'][$kk])) return [0, $vconn."->{$vtb} 中的字段 {$kk} 不存在"];
-						if(isset($fieldshow[$vv])) return [0, $vconn."->{$vtb} 中字段 {$vv} 与主字段重复"];
-						if(isset($fieldadds[$vv])) return [0, $vconn."->{$vtb} 中字段 {$vv} 与其他字段重复"];
-						$fieldadds[$vv] = $ttbnext['field'][$kk];
-					}
-					$v[3] = $tas;
-				}
-				if($k == 0 && !empty($tbfield[$v[2]])){
-					empty($fieldset[$v[2]]) && $fieldset[$v[2]] = $tbfield[$v[2]];
-				}
-				$ttb = $ttbnext;
-				$ttb['table'] = $vtb;
+                    foreach ($tas as $kk => $vv){
+                        if(!isset($ttbnext['field'][$kk])) return [0, $vconn."->{$vtb} 中的字段 {$kk} 不存在"];
+                        if(isset($fieldshow[$vv])) return [0, $vconn."->{$vtb} 中字段 {$vv} 与主字段重复"];
+                        if(isset($fieldadds[$vv])) return [0, $vconn."->{$vtb} 中字段 {$vv} 与其他字段重复"];
+                        $fieldadds[$vv] = $ttbnext['field'][$kk];
+                    }
+                    $v[3] = $tas;
+                }
+                if($k == 0 && !empty($tbfield[$v[2]])){
+                    empty($fieldset[$v[2]]) && $fieldset[$v[2]] = $tbfield[$v[2]];
+                }
+                $ttb = $ttbnext;
+                $ttb['table'] = $vtb;
 
-				$val[$k] = $v;
-			}
-			$fieldnext[$key] = $val;
-		}
+                $val[$k] = $v;
+            }
+            $fieldnext[$key] = $val;
+        }
 
-		foreach ($fieldadds as $key=>$val){
-			$fieldshow[$key] = $val;
-		}
+        foreach ($fieldadds as $key=>$val){
+            $fieldshow[$key] = $val;
+        }
 
-		return [
-			1, [
-				'set' => $fieldset,
-				'show' => $fieldshow,
-				'next' => $fieldnext,
-				'all' => $tbfield
-			]
-		];
+        return [
+            1, [
+                'set' => $fieldset,
+                'show' => $fieldshow,
+                'next' => $fieldnext,
+                'all' => $tbfield
+            ]
+        ];
 
-	}
+    }
 
-	/**
-	 * 设置KEY为小写
-	 * @param $data
-	 * @param $notin
-	 * @return array
-	 */
-	private function setKeyLower($data) {
-		if(empty($data) || is_string($data)) return $data;
-		$newdata = array();
-		foreach($data as $key=>$val){
-			$newdata[strtolower($key)] = $val;
-		}
-		return $newdata;
-	}
+    /**
+     * 设置KEY为小写
+     * @param $data
+     * @param $notin
+     * @return array
+     */
+    private function setKeyLower($data) {
+        if(empty($data) || is_string($data)) return $data;
+        $newdata = array();
+        foreach($data as $key=>$val){
+            $newdata[strtolower($key)] = $val;
+        }
+        return $newdata;
+    }
 
-	/**
-	 * 条件语句处理
-	 * @param $where
-	 */
-	public function getWhere($where, $fieldall){
-		if(empty($where)) return [1, $where];
-		if(is_string($where[0])) $where = [$where];
+    /**
+     * 条件语句处理
+     * @param $where
+     */
+    public function getWhere($where, $fieldall){
+        if(empty($where)) return [1, $where];
+        if(is_string($where[0])) $where = [$where];
         $flag = 0;
         $child_i = 0;
-		$wherenew = [];
-		ksort($where);
-		foreach ($where as $key=>$val){
-			if(is_string($val)){
-				if(strtolower(trim($val)) == "or"){
-					$flag ++;
+        $wherenew = [];
+        ksort($where);
+        foreach ($where as $key=>$val){
+            if(is_string($val)){
+                if(strtolower(trim($val)) == "or"){
+                    $flag ++;
                     $wherenew[$flag] = 'or';
                     $flag ++;
-				}
-			}elseif(is_array($val) && count($val) >= 2){
-			    $is_child = true;
-			    if(is_string($val[0]) && is_string($val[1]) && strtolower(trim($val[1])) != 'or'){
+                }
+            }elseif(is_array($val) && count($val) >= 2){
+                $is_child = true;
+                if(is_string($val[0]) && is_string($val[1]) && strtolower(trim($val[1])) != 'or'){
                     $is_child = false;
                 }
                 if($is_child){
@@ -692,18 +691,18 @@ EOF
                         }
                     }
                 }
-			}
-		}
-
-		$fields = [];
-		$whereret = [];
-		foreach ($wherenew as $key=>$val){
-		    if(is_string($val)){
-                $whereret[$key] = $val;
-		        continue;
             }
-			foreach ($val as $k=>$v){
-				foreach ($v as $kk=>$vv){
+        }
+
+        $fields = [];
+        $whereret = [];
+        foreach ($wherenew as $key=>$val){
+            if(is_string($val)){
+                $whereret[$key] = $val;
+                continue;
+            }
+            foreach ($val as $k=>$v){
+                foreach ($v as $kk=>$vv){
                     if($k == 'child'){
                         $whereret[$key][$k][$kk] = $vv;
                     }else {
@@ -743,39 +742,39 @@ EOF
                             }
                         }
                     }
-				}
-			}
-		}
+                }
+            }
+        }
 
-		$fields = array_unique($fields);
-		foreach ($fields as $val){
-			if(!isset($fieldall[$val])) return [0, "条件字段 {$val} 错误"];
-		}
-		return [1, $whereret];
-	}
+        $fields = array_unique($fields);
+        foreach ($fields as $val){
+            if(!isset($fieldall[$val])) return [0, "条件字段 {$val} 错误"];
+        }
+        return [1, $whereret];
+    }
 
-	/**
-	 * 排序处理
-	 * @param $order
-	 * @param $fieldall
-	 * @return array
-	 */
-	public function getOrder($order, $fieldall){
-		if(!is_array($order)) return [0, "数据库排序错误"];
-		$orderret = [];
-		foreach($order as $key=>$val){
-			$key = strtolower(trim($key));
-			if(!isset($fieldall[$key])) return [0, "排序字段 {$key} 不存在"];
-			$val = strtolower(trim($val));
-			if(!in_array($val, ["asc", "desc"])){
-				$val = "asc";
-			}
-			$orderret[$key] = $val;
-		}
-		return [1, $orderret];
-	}
+    /**
+     * 排序处理
+     * @param $order
+     * @param $fieldall
+     * @return array
+     */
+    public function getOrder($order, $fieldall){
+        if(!is_array($order)) return [0, "数据库排序错误"];
+        $orderret = [];
+        foreach($order as $key=>$val){
+            $key = strtolower(trim($key));
+            if(!isset($fieldall[$key])) return [0, "排序字段 {$key} 不存在"];
+            $val = strtolower(trim($val));
+            if(!in_array($val, ["asc", "desc"])){
+                $val = "asc";
+            }
+            $orderret[$key] = $val;
+        }
+        return [1, $orderret];
+    }
 
-	private function setWhereQuery(&$query, $where, $is_or=false){
+    private function setWhereQuery(&$query, $where, $is_or=false){
         if($is_or){
             $cmd_w      = 'orWhere';
             $cmd_wi     = 'orWhereIn';
@@ -805,7 +804,7 @@ EOF
             'notnull' => $cmd_wnn,
             'column' => $cmd_wc,
         ];
-		foreach ($where as $key=>$val){
+        foreach ($where as $key=>$val){
             $cmd = $keyflags[$key];
             foreach ($val as $k => $v) {
                 if (in_array($key, ['=', '<>', 'between', 'notbetween'])) {
@@ -841,16 +840,16 @@ EOF
                     }
                 }
             }
-		}
-	}
-	/**
-	 * 条件构造查询
-	 * @param $mod 数据库构造器
-	 * @param $where 条件查询
-	 */
-	public function setWhereMod(&$mod, $where, $is_or = false){
-	    if(empty($where) || !is_array($where)){
-	        return;
+        }
+    }
+    /**
+     * 条件构造查询
+     * @param $mod 数据库构造器
+     * @param $where 条件查询
+     */
+    public function setWhereMod(&$mod, $where, $is_or = false){
+        if(empty($where) || !is_array($where)){
+            return;
         }
 
         foreach ($where as $w){
@@ -872,14 +871,14 @@ EOF
             }
             $is_or = false;
         }
-	}
+    }
 
     /**
      * 获取分页信息
      * @param $page
      * @param $mod
      */
-	private function selectGetPageInfo($page, &$mod){
+    private function selectGetPageInfo($page, &$mod){
         $pagesize = $page['pagesize'];
         $p = $_GET['p'];
         $p <= 0 && $p =1;
@@ -899,11 +898,11 @@ EOF
         return $pages;
     }
 
-	/**
-	 * 查找数据库
-	 * @param $data
-	 */
-	private function _select($data, $field, $where, $whereAdd = [], $page = [], $order = []){
+    /**
+     * 查找数据库
+     * @param $data
+     */
+    private function _select($data, $field, $where, $whereAdd = [], $page = [], $order = []){
         $is_query = $this->is_query;
         $pk_name = '';
         if(!$is_query) {
@@ -916,9 +915,9 @@ EOF
             }
             if (empty($field_arr)) return [0, "查询字段不能为空"];
         }
-		$table = $data['table'];
-		$conn = $data['conn'];
-		if($is_query){
+        $table = $data['table'];
+        $conn = $data['conn'];
+        if($is_query){
             $mod = DB::connection($conn)->table(DB::raw("(".$data['query'].") as query_table"));
             $pages = $this->selectGetPageInfo($page, $mod);
             $mod_list = $mod->get();
@@ -975,58 +974,58 @@ EOF
             $mod->select($field_arr);
         }
 
-		$ispage = $page['ispage'];
-		$export_type = $_GET['_@export@_'];
-		$pages = [];
-		if($export_type === 'all'){
+        $ispage = $page['ispage'];
+        $export_type = $_GET['_@export@_'];
+        $pages = [];
+        if($export_type === 'all'){
             $sql_limit = env('SQL_LIMIT', 10000);
             !is_numeric($sql_limit) && $sql_limit = 10000;
             $mod->limit($sql_limit);
         }elseif($ispage){
             $pages = $this->selectGetPageInfo($page, $mod);
-		}else {
-			$limit = $data['limit'];
-			$offset = $data['offset'];
-			(empty($offset) || $offset <= 0) && $offset = 0;
-			if ($limit != -1) {
-				(empty($limit) || $limit <= 0) && $limit = 100;
-				$mod->limit($limit)->offset($offset);
-			}
-		}
-		if(!empty($order)){
-			foreach($order as $key=>$val){
-				$mod->orderBy($key, $val);
-			}
-		}
-		$this->last_sql = $mod->toSql();
+        }else {
+            $limit = $data['limit'];
+            $offset = $data['offset'];
+            (empty($offset) || $offset <= 0) && $offset = 0;
+            if ($limit != -1) {
+                (empty($limit) || $limit <= 0) && $limit = 100;
+                $mod->limit($limit)->offset($offset);
+            }
+        }
+        if(!empty($order)){
+            foreach($order as $key=>$val){
+                $mod->orderBy($key, $val);
+            }
+        }
+        $this->last_sql = $mod->toSql();
 //        dump($this->last_sql );
-		return [1, json_decode(json_encode($mod->get()), true), $pages];
-	}
+        return [1, json_decode(json_encode($mod->get()), true), $pages];
+    }
 
-	/**
-	 * 设置字段高级关联值
-	 * @param $list
-	 * @param $fieldnext
-	 */
-	private function setFieldList($config, &$list, $fieldnext){
-		$fields = [];
-		foreach ($fieldnext as $val){
-			!empty($val[0][2]) && $fields[] = $val[0][2];
-		}
-		$fields = array_unique($fields);
+    /**
+     * 设置字段高级关联值
+     * @param $list
+     * @param $fieldnext
+     */
+    private function setFieldList($config, &$list, $fieldnext){
+        $fields = [];
+        foreach ($fieldnext as $val){
+            !empty($val[0][2]) && $fields[] = $val[0][2];
+        }
+        $fields = array_unique($fields);
 
-		$data = [];
-		foreach ($list as $key=>$val){
-			foreach ($fields as $v){
-				$data[$v][] = $val[$v];
-			}
-		}
+        $data = [];
+        foreach ($list as $key=>$val){
+            foreach ($fields as $v){
+                $data[$v][] = $val[$v];
+            }
+        }
 
-		foreach ($data as $key=>$val){
-			$data[$key] = array_unique($val);
-		}
-		$conn = $config['conn'];
-		$field_tops = [];
+        foreach ($data as $key=>$val){
+            $data[$key] = array_unique($val);
+        }
+        $conn = $config['conn'];
+        $field_tops = [];
         foreach ($fieldnext as $val){
             foreach ($val as $v){
                 if(is_string($v[2]) && !isset($field_tops[$v[2]])){
@@ -1156,13 +1155,13 @@ EOF
                 }
             }
         }
-		foreach ($list as $key=>$val){
-			foreach ($listadds as $k=>$v){
-				foreach ($v as $kk=>$vv){
-					$list[$key][$kk] = $vv[$val[$k]];
-				}
-			}
-		}
+        foreach ($list as $key=>$val){
+            foreach ($listadds as $k=>$v){
+                foreach ($v as $kk=>$vv){
+                    $list[$key][$kk] = $vv[$val[$k]];
+                }
+            }
+        }
         $next_kv_names = array_unique($next_kv_names);
         foreach ($list as $key=>$val){
             foreach ($next_kv_names as $v){
@@ -1171,14 +1170,14 @@ EOF
                 }
             }
         }
-	}
+    }
 
-	/**
-	 * 查找表数据
-	 * @param $config
-	 * @return array
-	 */
-	private function getSelectData($config, $tplwhere = [], $page = []){
+    /**
+     * 查找表数据
+     * @param $config
+     * @return array
+     */
+    private function getSelectData($config, $tplwhere = [], $page = []){
         $query = $config['query'];
         $is_query = false;
         if (!empty($query) && is_string($query)) {
@@ -1217,63 +1216,239 @@ EOF
 
         $this->setFieldList($config, $list, $fieldnext);
         return [1, $list, $fieldshow, $pageinfo, $this->last_sql];
-	}
+    }
 
-	/**
-	 * 查找数据库列表
-	 * @param $config
-	 * @return array
-	 */
-	public function select($config, $where = [], $page = []){
-		$config = $this->setKeyLower($config);
-		return $this->getSelectData($config, $where, $page);
-	}
+    /**
+     * 查找数据库列表
+     * @param $config
+     * @return array
+     */
+    public function select($config, $where = [], $page = []){
+        $config = $this->setKeyLower($config);
+        return $this->getSelectData($config, $where, $page);
+    }
 
-	/**
-	 * 查找数据库一个列表
-	 * @param $config
-	 * @return array
-	 */
-	public function find($config, $where = []){
-		$config = $this->setKeyLower($config);
-		if(empty($config['offset']) || $config['offset'] < 0) $config['offset'] = 0;
-		$config['limit'] = 1;
-		list($status, $list, $fieldshow) = $this->getSelectData($config, $where);
-		if(is_string($list)){
-		    $retlist = $list;
+    /**
+     * 查找数据库一个列表
+     * @param $config
+     * @return array
+     */
+    public function find($config, $where = []){
+        $config = $this->setKeyLower($config);
+        if(empty($config['offset']) || $config['offset'] < 0) $config['offset'] = 0;
+        $config['limit'] = 1;
+        list($status, $list, $fieldshow) = $this->getSelectData($config, $where);
+        if(is_string($list)){
+            $retlist = $list;
         }else{
             $retlist = $list[0];
         }
-		return [$status, $retlist, $fieldshow, [], $this->last_sql];
-	}
+        return [$status, $retlist, $fieldshow, [], $this->last_sql];
+    }
 
-	/**
-	 * 获取数据库表字段信息
-	 * @param string $connname 数据库配置名称
-	 * @param string $tablename 表名称
-	 * @param string $fieldname 字段名称
-	 * @return array
-	 */
-	public function dbInfo($connname="", $tablename="", $fieldname=""){
-		$connname = strtolower(trim($connname));
-		$info = $this->getDbInfo($connname);
+    /**
+     * 获取数据下标，以 "." 隔开
+     * @param array $data
+     * @param string $index
+     * @return array|mixed|null
+     */
+    private function getApiIndex($data=[], $index=""){
+        $ret = $data;
+        $index_arr = explode(".", $index);
+        foreach ($index_arr as $ia){
+            if(!is_array($ret)){
+                $ret = null;
+                break;
+            }
+            $ret = $ret[trim($ia)];
+        }
+        return $ret;
+    }
 
-		$tablename = strtolower(trim($tablename));
-		if(empty($tablename)) return $info['tb'];
+    /**
+     * 外部接口数据
+     * @param $config
+     * @param array $c_page
+     * @param array $field
+     * @return array
+     */
+    public function api($config, $c_page=[], $field=[]){
+        $url = $config['url'];
+        list($url, $params) = HttpController::getUrlParams($url);
+        $page = $config['page'];
+        $gets = $_GET;
+        $pk = $gets['pk'];
+        if($page === false) {
+            // 非分页初始化设置
+            $is_page = false;
+            if(empty($config['list'])){
+                $config['list'] = 'data';
+            }
+        }else{
+            // 分页初始化设置
+            $is_page = true;
+            if(!is_array($page)){
+                $page = [];
+            }
 
-		$prefix = strtolower(trim($this->sqlconfig[$connname]['prefix']));
+            // 分页参数传递
+            if(empty($page['params'])){
+                $page['params'] = [];
+            }
+            if(empty($page['params']['page'])){
+                $page['params']['page'] = 'p';
+            }
+            if(empty($page['params']['pagesize'])){
+                $page['params']['pagesize'] = 'psize';
+            }
 
-		$fieldname = strtolower(trim($fieldname));
-		$tb = $info['tb'][$prefix.$tablename];
-		if(empty($tb)) return [];
-		if(empty($fieldname)) return $tb['field'];
+            $p_name = $page['params']['page'];
+            $p = $gets['p'];
+            unset($gets['p']);
+            empty($p) && $p = 1;
+            $gets[$p_name] = $p;
+            $psize = $gets['psize'];
+            if(!empty($psize)){
+                unset($gets['psize']);
+                $psize_name = $page['params']['pagesize'];
+                $gets[$psize_name] = $psize;
+            }
 
-		$f = $tb['field'][$fieldname];
-		if(empty($f)){
-			return [];
-		}
-		return $f;
-	}
+            // 分页信息获取
+            if(empty($page['info'])){
+                $page['info'] = [];
+            }
+            if(empty($page['info']['page'])){
+                $page['info']['page'] = 'data.p';
+            }
+            if(empty($page['info']['pagesize'])){
+                $page['info']['pagesize'] = 'data.psize';
+            }
+            if(empty($page['info']['total'])){
+                $page['info']['total'] = 'data.total';
+            }
+            $config['page'] = $page;
+
+            // 分页数据获取
+            if(empty($config['list'])){
+                $config['list'] = 'data.list';
+            }
+        }
+
+        foreach($gets as $key=>$val){
+            $params[$key] = $val;
+        }
+        $page_get = $config['get'];
+        if(is_array($page_get)){
+            foreach($page_get as $key=>$val){
+                $params[$key] = $val;
+            }
+        }
+        if(!empty($pk)){
+            $pk_json = json_decode($pk, true);
+            if(!empty($pk_json)){
+                $pk_json0 = $pk_json[0];
+                if(!empty($pk_json0)){
+                    $pk0 = json_decode($pk_json0, true);
+                    if(is_array($pk0)){
+                        foreach ($pk0 as $key=>$val){
+                            $params[$key] = $val;
+                        }
+                    }
+                }
+            }
+        }
+
+        $posts = $_POST;
+        $page_post = $config['post'];
+        if(is_array($page_post)){
+            foreach($page_post as $key=>$val){
+                $posts[$key] = $val;
+            }
+        }
+        $headers = [];
+        $page_header = $config['header'];
+        if(is_array($page_header)){
+            foreach($page_header as $key=>$val){
+                $headers[$key] = $val;
+            }
+        }
+        $method = $config['method'];
+
+        $param_str = http_build_query($params);
+        $url .= "?{$param_str}";
+
+        $html = HttpController::getHttpData($url, $posts, $method, $headers);
+        $html = trim($html);
+        if(empty($html)){
+            return [0, "获取数据错误： {$url}"];
+        }
+        $html_data = json_decode($html, true);
+        if(empty($html_data)){
+            return [0, $html];
+        }
+        $list = $this->getApiIndex($html_data, $config['list']);
+        if($is_page){
+            $cot = $this->getApiIndex($html_data, $page['info']['total']);
+            $pagesize = $c_page['pagesize'];
+            $current_page = $_GET['p'];
+            $current_page <= 0 && $current_page = 1;
+            $item = array_slice($list, ($current_page - 1) * $pagesize, $pagesize);
+            $hr_url = $_SERVER['HTTP_REFERER'];
+            $pos = strpos($hr_url, '?');
+            if($pos > 0){
+                $hr_url = substr($hr_url, 0, $pos);
+            }
+            $pages = new \Illuminate\Pagination\LengthAwarePaginator($item, $cot, $pagesize, $current_page,[
+                'path' => $hr_url,
+                'pageName' => 'p'
+            ]);
+            $pages->page = $p;
+            $pages->pagesize = $pagesize;
+            $pages->pagesizedef = $c_page['pagesizedef'];
+            $pages->count = $cot;
+        }else{
+            $pages = [];
+        }
+
+        $fieldshow = [];
+        foreach ($field as $key=>$val){
+            $fieldshow[$key] = [
+                'name' => $val['name'],
+                'key' => $val['title'] ? 'PRI' : '',
+                'type' => 'text'
+            ];
+        }
+        return [1, $list, $fieldshow, $pages, $this->last_sql];
+    }
+
+    /**
+     * 获取数据库表字段信息
+     * @param string $connname 数据库配置名称
+     * @param string $tablename 表名称
+     * @param string $fieldname 字段名称
+     * @return array
+     */
+    public function dbInfo($connname="", $tablename="", $fieldname=""){
+        $connname = strtolower(trim($connname));
+        $info = $this->getDbInfo($connname);
+
+        $tablename = strtolower(trim($tablename));
+        if(empty($tablename)) return $info['tb'];
+
+        $prefix = strtolower(trim($this->sqlconfig[$connname]['prefix']));
+
+        $fieldname = strtolower(trim($fieldname));
+        $tb = $info['tb'][$prefix.$tablename];
+        if(empty($tb)) return [];
+        if(empty($fieldname)) return $tb['field'];
+
+        $f = $tb['field'][$fieldname];
+        if(empty($f)){
+            return [];
+        }
+        return $f;
+    }
 
     /**
      * 获取数据库配置

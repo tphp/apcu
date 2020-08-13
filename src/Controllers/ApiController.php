@@ -6,6 +6,7 @@ use \Tphp\Apcu\Controllers\VimController as Vim;
 
 class ApiController
 {
+    private $_data_type_list = ['sql', 'sqlfind', 'api']; //查询格式
     function __construct($tpl, $tplclass) {
         $this->type = $tplclass->tpl_type;
         $this->tpl = $tpl;
@@ -868,7 +869,7 @@ class ApiController
      */
     protected function setHandle($type){
         $vconfig = $this->vconfig;
-        if(!in_array($this->vim->config, ['sql', 'sqlfind']) && is_array($this->data_ext)){
+        if(!in_array($this->vim->config, $this->_data_type_list) && is_array($this->data_ext)){
             $this->data = $this->data_ext;
         }
         $handle = &$this->vimconfig['handle'];
@@ -2214,7 +2215,7 @@ class ApiController
     protected function editConfig($type='edit'){
         $config = $this->retconfig;
         $ttc = $this->tplclass->config;
-        if(!in_array($ttc['type'], ['sql', 'sqlfind']) || !isset($ttc['config']) || empty($ttc['config']['table'])) {
+        if(!in_array($ttc['type'], $this->_data_type_list) || !isset($ttc['config']) || empty($ttc['config']['table'])) {
             return $config;
         }
 
@@ -2859,7 +2860,10 @@ class ApiController
      */
     protected function deletesConfig($type="all"){
         $ttc = $this->tplclass->config;
-        if(!in_array($ttc['type'], ['sql', 'sqlfind']) || !isset($ttc['config']) || empty($ttc['config']['table'])) {
+        if($ttc['type'] == 'api'){
+            return false;
+        }
+        if(!in_array($ttc['type'], $this->_data_type_list) || !isset($ttc['config']) || empty($ttc['config']['table'])) {
             return false;
         }
 
@@ -3021,7 +3025,7 @@ class ApiController
     protected function handleConfig(){
         // 当没有设置数据库信息时不执行表操作
         $ttc = $this->tplclass->config;
-        if(empty($ttc) || !in_array($ttc['type'], ['sql', 'sqlfind']) || empty($ttc['config']) || empty($ttc['config']['table'])){
+        if(empty($ttc) || !in_array($ttc['type'], $this->_data_type_list) || empty($ttc['config']) || empty($ttc['config']['table'])){
             return false;
         }
         $pks = $this->getPks();
