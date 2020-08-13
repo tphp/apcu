@@ -73,6 +73,7 @@ class XHttp {
      * @param null $header 请求头部信息
      * @param bool $output_encoding 输出编码格式，如：utf-8
      * @param bool $iscurl 获取远程信息类型
+     * @param bool $isexit 是否错误退出
      * @return bool|mixed|string
      */
     public function getHttpData($url, $para=null, $type=null, $header=NULL, $output_encoding = false, $iscurl = true, $isexit = true) {
@@ -136,5 +137,15 @@ class XHttp {
             $this->webExit($http_code, $responseText);
         }
         return $responseText;
+    }
+
+    public function getHttpHtml($url, $para=null, $type=null, $header=NULL, $output_encoding = false, $iscurl = true) {
+        return $this->getHttpData($url, $para, $type, $header, $output_encoding, $iscurl, false);
+    }
+
+    public function getHttpJson($url, $para=null, $type=null, $header=NULL, $output_encoding = false, $iscurl = true) {
+        $html = $this->getHttpHtml($url, $para, $type, $header, $output_encoding, $iscurl);
+        $json = json_decode($html, true);
+        return $json;
     }
 }
