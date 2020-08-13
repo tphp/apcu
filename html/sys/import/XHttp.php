@@ -75,7 +75,7 @@ class XHttp {
      * @param bool $iscurl 获取远程信息类型
      * @return bool|mixed|string
      */
-    public function getHttpData($url, $para=null, $type=null, $header=NULL, $output_encoding = false, $iscurl = true) {
+    public function getHttpData($url, $para=null, $type=null, $header=NULL, $output_encoding = false, $iscurl = true, $isexit = true) {
         if ($iscurl) {
             $type = strtolower($type);
             if($type == 'get' || empty($para)){
@@ -132,7 +132,9 @@ class XHttp {
             $responseText = iconv($html_encoding, $output_encoding, $responseText);
         }
 
-        $this->webExit($http_code, $responseText);
+        if($isexit){
+            $this->webExit($http_code, $responseText);
+        }
         return $responseText;
     }
 }
