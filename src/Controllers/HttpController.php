@@ -23,8 +23,8 @@ class HttpController {
         if($pos === false){
             return [$url, $params];
         }
-        $url_ext = substr($url, 0, $pos);
-        $url = substr($url, $pos + 1);
+        $url_ext = substr($url, $pos + 1);
+        $url = substr($url, 0, $pos);
         $url_ext_arr = explode("&", $url_ext);
         foreach ($url_ext_arr as $uea){
             $uea = trim($uea);

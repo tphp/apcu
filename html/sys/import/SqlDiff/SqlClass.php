@@ -64,6 +64,7 @@ abstract class SqlClass {
         if(!$status) return [0, $msg];
         $filepath = $this->base_path.$filename.".json";
         $this->xfile->write($filepath, json_encode($data_new, true));
+        return [1, 'ok'];
     }
 
     /**
@@ -178,6 +179,15 @@ abstract class SqlClass {
         $ip         = $db_config['host'];
         $database   = $db_config['database'];
         $port       = $db_config['port'];
+        if(empty($port)){
+            if($driver == 'mysql'){
+                $port = 3306;
+            }elseif($driver == 'sqlsrv'){
+                $port = 1433;
+            }elseif($driver == 'pgsql'){
+                $port = 5432;
+            }
+        }
 
         if(empty($ip) || empty($database)) return [0, "链接失败"];
         list($status, $msg) = $this->isLinked($ip, $database, $port, $driver);

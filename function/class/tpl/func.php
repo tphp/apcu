@@ -1575,6 +1575,12 @@ return function($data){
 					}elseif($type == 'sqlfind'){
                         return $sql->find($config, $this->where);
                     }elseif($type == 'api'){
+					    empty($config['get']) && $config['get'] = [];
+                        $config['get']['__'] = $this->tpl_type;
+                        if($this->isPost()){
+                            empty($config['post']) && $config['post'] = [];
+                            $config['post']['__'] = $this->tpl_type;
+                        }
                         return $sql->api($config, $this->page, $this->apifun->allfield);
                     }
 				}

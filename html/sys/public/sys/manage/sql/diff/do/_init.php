@@ -27,7 +27,10 @@ return function (){
         }
         $msd = import("SqlDiff.{$import_name}", $conn);
         if($type == 'save'){
-            $msd->save();
+            list($status, $msg) = $msd->save();
+            if(!$status){
+                EXITJSON(0, $msg);
+            }
             EXITJSON(1, "字段保存成功");
         }else {
             list($status, $msg) = $msd->getDiff(true);

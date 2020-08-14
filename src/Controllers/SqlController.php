@@ -1275,7 +1275,11 @@ EOF
     public function api($config, $c_page=[], $field=[]){
         $url = $config['url'];
         list($url, $params) = HttpController::getUrlParams($url);
-        $page = $config['page'];
+        if($config['get']['__'] == 'list'){
+            $page = $config['page'];
+        }else{
+            $page = false;
+        }
         $gets = $_GET;
         $pk = $gets['pk'];
         if($page === false) {
@@ -1387,7 +1391,49 @@ EOF
         if(empty($html_data)){
             return [0, $html];
         }
+
+        // 返回状态设置
+        if(empty($config['code'])){
+            $code = 'code';
+            $code_ok = 1;
+        }else{
+            $code = $config['code'];
+            if(is_string($code)){
+                $code_ok = 1;
+            }elseif(is_array($code)){
+                list($code, $code_ok) = $code;
+                empty($code) && $code = 'code';
+                empty($code_ok) && $code_ok !== 0 && $code_ok = 1;
+            }else{
+                $code = 'code';
+                $code_ok = 1;
+            }
+        }
+
+        $msg = $config['msg'];
+        if(empty($msg) || !is_string($msg)){
+            $msg = 'msg';
+        }
+
+        // 错误提醒
+        $t_code = $this->getApiIndex($html_data, $code);
+        $msg_value = $this->getApiIndex($html_data, $msg);
+        if($t_code != $code_ok){
+            return [0, $msg_value];
+        }
+
         $list = $this->getApiIndex($html_data, $config['list']);
+        if(!is_array($list)){
+            if(count($_POST) > 0){
+                EXITJSON(1, $msg_value);
+            }
+            $list = [];
+        }
+        // 新增时直接返回成功
+        if(empty($list) && count($_POST) > 0 && $config['get']['__'] == 'add'){
+            EXITJSON(1, $msg_value);
+        }
+
         if($is_page){
             $cot = $this->getApiIndex($html_data, $page['info']['total']);
             $pagesize = $c_page['pagesize'];
@@ -1412,13 +1458,23 @@ EOF
         }
 
         $fieldshow = [];
+        $has_title = false;
         foreach ($field as $key=>$val){
+            $val['title'] && $has_title = true;
             $fieldshow[$key] = [
                 'name' => $val['name'],
                 'key' => $val['title'] ? 'PRI' : '',
                 'type' => 'text'
             ];
         }
+        // 如果不存在主键则默认使用第一个字段
+        if(!$has_title){
+            foreach ($field as $key=>$val){
+                $fieldshow[$key]['key'] = 'PRI';
+                break;
+            }
+        }
+
         return [1, $list, $fieldshow, $pages, $this->last_sql];
     }
 
