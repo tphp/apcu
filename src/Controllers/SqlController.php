@@ -1425,7 +1425,11 @@ EOF
         }
         $html_data = json_decode($html, true);
         if(empty($html_data)){
-            EXITJSON(0, $html);
+            if(count($_POST) > 0){
+                EXITJSON(0, $html);
+            }else{
+                exit($html);
+            }
         }
 
         // 返回状态设置
