@@ -1575,11 +1575,15 @@ return function($data){
 					}elseif($type == 'sqlfind'){
                         return $sql->find($config, $this->where);
                     }elseif($type == 'api'){
-					    empty($config['get']) && $config['get'] = [];
-                        $config['get']['__'] = $this->tpl_type;
+                        empty($config['get']) && $config['get'] = [];
+                        $t_type = $this->tpl_type;
+                        if($t_type == 'deletes'){
+                            $t_type = 'delete';
+                        }
+                        $config['get']['__'] = $t_type;
                         if($this->isPost()){
                             empty($config['post']) && $config['post'] = [];
-                            $config['post']['__'] = $this->tpl_type;
+                            $config['post']['__'] = $t_type;
                         }
                         return $sql->api($config, $this->page, $this->apifun->allfield);
                     }

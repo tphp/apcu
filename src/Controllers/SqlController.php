@@ -1275,7 +1275,8 @@ EOF
     public function api($config, $c_page=[], $field=[]){
         $url = $config['url'];
         list($url, $params) = HttpController::getUrlParams($url);
-        if($config['get']['__'] == 'list'){
+        $c_type = $config['get']['__'];
+        if($c_type == 'list'){
             $page = $config['page'];
         }else{
             $page = false;
@@ -1382,14 +1383,49 @@ EOF
         $param_str = http_build_query($params);
         $url .= "?{$param_str}";
 
+        if($c_type == 'delete'){
+            $p_data = $posts['data'];
+            unset($posts['data']);
+            $deletes = [];
+            foreach ($p_data as $p_d){
+                $p_d_arr = json_decode($p_d, true);
+                !empty($p_d_arr) && is_array($p_d_arr) && $deletes[] = $p_d_arr;
+            }
+            if(count($deletes) > 0){
+                if(count($deletes[0]) > 1){
+                    foreach ($deletes[0] as $k=>$v){
+                        $posts[$k] = $v;
+                    }
+                }else{
+                    foreach ($deletes as $del){
+                        foreach ($del as $k=>$v){
+                            $v = trim($v);
+                            if(empty($v)){
+                                continue;
+                            }
+                            $v = str_replace("'", "''", $v);
+                            if(empty($posts[$k])){
+                                $posts[$k] = [];
+                            }
+                            $posts[$k][] = $v;
+                        }
+                    }
+                    foreach ($posts as $key=>$val){
+                        if(is_array($val)){
+                            $posts[$key] = json_encode($val, true);
+                        }
+                    }
+                }
+            }
+        }
         $html = HttpController::getHttpData($url, $posts, $method, $headers);
         $html = trim($html);
         if(empty($html)){
-            return [0, "获取数据错误： {$url}"];
+            EXITJSON(0, "获取数据错误： {$url}");
         }
         $html_data = json_decode($html, true);
         if(empty($html_data)){
-            return [0, $html];
+            EXITJSON(0, $html);
         }
 
         // 返回状态设置
@@ -1419,7 +1455,7 @@ EOF
         $t_code = $this->getApiIndex($html_data, $code);
         $msg_value = $this->getApiIndex($html_data, $msg);
         if($t_code != $code_ok){
-            return [0, $msg_value];
+            EXITJSON(0, $msg_value);
         }
 
         $list = $this->getApiIndex($html_data, $config['list']);
@@ -1430,7 +1466,11 @@ EOF
             $list = [];
         }
         // 新增时直接返回成功
-        if(empty($list) && count($_POST) > 0 && $config['get']['__'] == 'add'){
+        if(empty($list) && count($_POST) > 0 && $c_type == 'add'){
+            EXITJSON(1, $msg_value);
+        }
+        // 删除直接返回信息
+        if($c_type == 'delete'){
             EXITJSON(1, $msg_value);
         }
 
