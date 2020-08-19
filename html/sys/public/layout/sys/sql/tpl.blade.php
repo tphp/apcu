@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 @php
     $static_tphp = "/".config('path.static_tphp');
+    $verify_file = dirname($static_tphp)."/tphp_ext/verify.js";
     $static = "/".config('path.static');
     $staticadmin = $static_tphp."admin/";
     $md5_css = tpl_css();
@@ -132,6 +133,8 @@
 <script src="{{url($static_tphp.'api/js/json.js')}}"></script>
 <script src="{{url($static_tphp.'js/ace/ace.js')}}"></script>
 <script src="{{url($static_tphp.'js/ace/ext-language_tools.js')}}"></script>
+@if(is_file(public_path($verify_file)))<script src="{{url($verify_file)}}" charset="utf-8"></script>
+@endif
 <script src="{{url($staticadmin.'vim/js/edit.js')}}" charset="utf-8"></script>
 
 @if(!empty($md5_js))<script src="{{url($static.'tpl/js/'.$md5_js.'.js')}}"></script>@endif
