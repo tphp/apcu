@@ -1433,7 +1433,9 @@ EOF
         }
 
         // 返回状态设置
-        if(empty($config['code'])){
+        if(!isset($config['code']) || !is_string($config['code'])) {
+            $code = false;
+        }elseif(empty($config['code'])){
             $code = 'code';
             $code_ok = 1;
         }else{
@@ -1455,11 +1457,14 @@ EOF
             $msg = 'msg';
         }
 
-        // 错误提醒
-        $t_code = $this->getApiIndex($html_data, $code);
         $msg_value = $this->getApiIndex($html_data, $msg);
-        if($t_code != $code_ok){
-            EXITJSON(0, $msg_value);
+
+        if($code !== false){
+            // 错误提醒
+            $t_code = $this->getApiIndex($html_data, $code);
+            if($t_code != $code_ok){
+                EXITJSON(0, $msg_value);
+            }
         }
 
         $list = $this->getApiIndex($html_data, $config['list']);

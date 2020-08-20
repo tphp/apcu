@@ -101,70 +101,8 @@ return function($data){
 			 * @param bool $output_encoding 输出编码格式，如：utf-8
 			 * @param bool $iscurl 获取远程信息类型
 			 */
-			public static function getHttpData($url, $para=null, $type=null, $header=NULL, $output_encoding = false, $iscurl = true) {
-				if ($iscurl) {
-					$type = strtolower($type);
-					if($type == 'get' || empty($para)){
-						if(!empty($para)) {
-							$content = http_build_query($para);
-							if (strpos($url, '?') !== false) {
-								$url .= "&{$content}";
-							} else {
-								$url .= "?{$content}";
-							}
-						}
-						$curl = curl_init($url);
-						if(!empty($header)) curl_setopt($curl, CURLOPT_HTTPHEADER, $header);
-						curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);//获取数据返回
-						curl_setopt($curl, CURLOPT_BINARYTRANSFER, true);//在启用 CURLOPT_RETURNTRANSFER 时候将获取数据返回
-					}elseif($type == 'json') {
-						$para_string = json_encode($para);
-						$curl = curl_init($url);
-						curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "POST");
-						curl_setopt($curl, CURLOPT_POSTFIELDS, $para_string);
-						curl_setopt($curl, CURLOPT_RETURNTRANSFER,true);
-						$headernew = [];
-						$headernew[] = 'Content-Type: application/json';
-						$headernew[] = 'Content-Length: ' . strlen($para_string);
-						foreach($header as $val){
-							$headernew[] = $val;
-						}
-						curl_setopt($curl, CURLOPT_HTTPHEADER, $headernew);
-					}else{
-						$curl = curl_init();
-						curl_setopt($curl, CURLOPT_URL, $url) ;
-						if(!empty($header)){
-							curl_setopt($curl, CURLOPT_HTTPHEADER, $header);
-						}else{
-							curl_setopt($curl, CURLOPT_HEADER, 0 ); // 过滤HTTP头
-						}
-						curl_setopt($curl,CURLOPT_RETURNTRANSFER, 1);// 显示输出结果
-						curl_setopt($curl,CURLOPT_POST, count($para)); // post传输数据
-						curl_setopt($curl,CURLOPT_POSTFIELDS, $para);// post传输数据
-					}
-                    curl_setopt($curl, CURLOPT_TIMEOUT, 15);
-
-					$responseText = curl_exec($curl);
-					curl_close($curl);
-				}else{
-					$responseText = file_get_contents($url);
-
-				}
-				//设置编码格式
-				if ($output_encoding) {
-					$html_encoding = Api::getEncode($responseText);
-					$responseText = iconv($html_encoding, $output_encoding, $responseText);
-				}
-				return $responseText;
-			}
-
-			/**
-			 * 获取文件编码
-			 * @param $string
-			 * @return string
-			 */
-			private static function getEncode($string) {
-				return mb_detect_encoding($string, array('ASCII', 'GB2312', 'GBK', 'UTF-8'));
+			public static function getHttpData($url, $para=null, $method=null, $header=NULL, $output_encoding = false, $iscurl = true) {
+				return Tphp\Apcu\Controllers\HttpController::getHttpData($url, $para, $method, $header, $output_encoding, $iscurl);
 			}
 		}
 	}
