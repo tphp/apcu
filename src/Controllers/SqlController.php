@@ -1310,9 +1310,9 @@ EOF
 
             $p_name = $page['params']['page'];
             $p = $gets['p'];
-            unset($gets['p']);
             empty($p) && $p = 1;
             $gets[$p_name] = $p;
+            $gets['p'] = $p;
             $psize = $gets['psize'];
             // 如果是列表并且是导出状态
             if($obj->tpl_type == 'list'){
@@ -1334,9 +1334,9 @@ EOF
                 $psize = $c_page['pagesizedef'];
             }
             if(!empty($psize)){
-                unset($gets['psize']);
                 $gets[$psize_name] = $psize;
             }
+            $gets['psize'] = $psize;
 
             // 分页信息获取
             if(empty($page['info'])){
