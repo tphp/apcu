@@ -38,7 +38,11 @@
         @foreach($search as $key=>$val)
         @php
             $fk = $field[$key];
-            $fk_name = $fk['name'];
+            if(isset($fk['search_name'])){
+                $fk_name = $fk['search_name'];
+            }else{
+                $fk_name = $fk['name'];
+            }
             $tp = $val['type'];
             if(in_array($tp, ['radio', 'checkbox', 'selects'])){
                 $search_width = "auto";
