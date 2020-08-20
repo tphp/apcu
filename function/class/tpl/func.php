@@ -296,7 +296,7 @@ return function($data){
                     }
                 }
             }
-            
+
             /**
              * 获取字段数据
              * @param null $keyname
@@ -1585,7 +1585,7 @@ return function($data){
                             empty($config['post']) && $config['post'] = [];
                             $config['post']['__'] = $t_type;
                         }
-                        return $sql->api($config, $this->page, $this->apifun->allfield);
+                        return $sql->api($config, $this->page, $this->apifun->allfield, $this);
                     }
 				}
 				return [1, $default];

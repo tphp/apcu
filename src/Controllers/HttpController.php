@@ -80,7 +80,7 @@ class HttpController {
         $header = self::getHeader($header);
         if ($iscurl) {
             $method = strtolower($method);
-            $curl = curl_init();
+            $curl = \curl_init();
             if($method == 'get' || empty($para)){
                 if(!empty($para)) {
                     list($url, $data) = self::getUrlParams($url);
@@ -94,26 +94,26 @@ class HttpController {
                     $content = http_build_query($data);
                     $url .= "?{$content}";
                 }
-                curl_setopt($curl, CURLOPT_BINARYTRANSFER, true);//在启用 CURLOPT_RETURNTRANSFER 时候将获取数据返回
+                \curl_setopt($curl, CURLOPT_BINARYTRANSFER, true);//在启用 CURLOPT_RETURNTRANSFER 时候将获取数据返回
             }elseif($method == 'json') {
                 $para_string = json_encode($para);
-                curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "POST");
-                curl_setopt($curl, CURLOPT_POSTFIELDS, $para_string);
+                \curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "POST");
+                \curl_setopt($curl, CURLOPT_POSTFIELDS, $para_string);
                 $header[] = 'Content-Type: application/json';
                 $header[] = 'Content-Length: ' . strlen($para_string);
             }else{
-                curl_setopt($curl, CURLOPT_POST, count($para)); // post传输数据
-                curl_setopt($curl, CURLOPT_POSTFIELDS, $para);// post传输数据
+                \curl_setopt($curl, CURLOPT_POST, count($para)); // post传输数据
+                \curl_setopt($curl, CURLOPT_POSTFIELDS, $para);// post传输数据
             }
 
-            curl_setopt($curl, CURLOPT_URL, $url) ;
-            curl_setopt($curl, CURLOPT_HEADER, 0); // 过滤HTTP头
+            \curl_setopt($curl, CURLOPT_URL, $url) ;
+            \curl_setopt($curl, CURLOPT_HEADER, 0); // 过滤HTTP头
 
-            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true); // 显示输出结果
-            curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false); // 跳过证书检查
-            curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);  // 从证书中检查SSL加密算法是否存在
+            \curl_setopt($curl, CURLOPT_RETURNTRANSFER, true); // 显示输出结果
+            \curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false); // 跳过证书检查
+            \curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);  // 从证书中检查SSL加密算法是否存在
             if(!empty($header)){
-                curl_setopt($curl, CURLOPT_HTTPHEADER, $header);
+                \curl_setopt($curl, CURLOPT_HTTPHEADER, $header);
             }
 
             $responseText = curl_exec($curl);

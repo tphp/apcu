@@ -1272,7 +1272,7 @@ EOF
      * @param array $field
      * @return array
      */
-    public function api($config, $c_page=[], $field=[]){
+    public function api($config, $c_page=[], $field=[], $obj=null){
         $url = $config['url'];
         list($url, $params) = HttpController::getUrlParams($url);
         $c_type = $config['get']['__'];
@@ -1283,6 +1283,7 @@ EOF
         }
         $gets = $_GET;
         $pk = $gets['pk'];
+        $is_exp = false;
         if($page === false) {
             // 非分页初始化设置
             $is_page = false;
@@ -1313,9 +1314,27 @@ EOF
             empty($p) && $p = 1;
             $gets[$p_name] = $p;
             $psize = $gets['psize'];
+            // 如果是列表并且是导出状态
+            if($obj->tpl_type == 'list'){
+                $exp = $_GET['_@export@_'];
+                if(in_array($exp, ['this', 'all'])){
+                    // 导出全部
+                    if($exp == 'all'){
+                        $psize = env('SQL_LIMIT', 10000);
+                        !is_numeric($psize) && $psize = 10000;
+                    }
+                    $is_exp = true;
+                }
+            }
+            $psize_name = $page['params']['pagesize'];
+            if(empty($psize)){
+                $psize = $c_page['pagesize'];
+            }
+            if(empty($psize)){
+                $psize = $c_page['pagesizedef'];
+            }
             if(!empty($psize)){
                 unset($gets['psize']);
-                $psize_name = $page['params']['pagesize'];
                 $gets[$psize_name] = $psize;
             }
 
@@ -1418,6 +1437,9 @@ EOF
                 }
             }
         }
+        if($is_exp){
+            $posts = [];
+        }
         $html = HttpController::getHttpData($url, $posts, $method, $headers);
         $html = trim($html);
         if(empty($html)){
@@ -1425,11 +1447,7 @@ EOF
         }
         $html_data = json_decode($html, true);
         if(empty($html_data)){
-            if(count($_POST) > 0){
-                EXITJSON(0, $html);
-            }else{
-                exit($html);
-            }
+            EXITJSON(0, $html);
         }
 
         // 返回状态设置
@@ -1486,7 +1504,7 @@ EOF
         if($is_page){
             $cot = $this->getApiIndex($html_data, $page['info']['total']);
             $pagesize = $c_page['pagesize'];
-            $current_page = $_GET['p'];
+            $current_page = $gets['p'];
             $current_page <= 0 && $current_page = 1;
             $item = array_slice($list, ($current_page - 1) * $pagesize, $pagesize);
             $hr_url = $_SERVER['HTTP_REFERER'];
