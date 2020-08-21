@@ -39,8 +39,8 @@
         @foreach($search as $key=>$val)
         @php
             $fk = $field[$key];
-            if(isset($fk['search_name'])){
-                $fk_name = $fk['search_name'];
+            if(isset($val['name'])){
+                $fk_name = $val['name'];
             }else{
                 $fk_name = $fk['name'];
             }
