@@ -30,8 +30,9 @@
         return $c1.$c2.$c3;
     }
     if(empty($title)){
-        $title = "PHP后台系统";
+        $title = "TPHP后台系统";
     }
+    $menu_status = __get_cookie('menu_status');
 @endphp
 <html lang="zh-CN">
 <head>
@@ -83,7 +84,7 @@
     <![endif]-->
 
 </head>
-<body>
+<body class="pace-done @if($menu_status == 'close') menu-closed @endif">
 <div class="loadbg" id="loadbg"></div>
 <div class="frame-top">
     <a class="logo-title">{!!$title!!}</a>
@@ -113,8 +114,11 @@
         <i class="fa fa-arrows-alt"></i>
     </a>
 </div>
-<div class="frame-personCenter"><a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown"><img
-                id="userhead" src="{{ empty($image) ? url($static.'img/on-boy.jpg') : $image }}"><span>{{$username}}</span></a>
+<div class="frame-personCenter">
+    <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown">
+        <img id="userhead" src="{{ empty($image) ? url($static.'img/on-boy.jpg') : $image }}">
+        <span>{{$username}}</span>
+    </a>
     <ul class="dropdown-menu pull-right">
         <li><a href="javascript:void(0);" id="set_userinfo"><i class="fa fa-user-o"></i>个人中心</a></li>
         <li><a href="javascript:void(0);" id="set_password"><i class="fa fa-edit"></i>修改密码</a></li>
