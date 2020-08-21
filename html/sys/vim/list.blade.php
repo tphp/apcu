@@ -13,6 +13,7 @@
         $undershow = false;
         $undershowstr = "false";
     }
+    $xstring = import('XString');
 @endphp
 <html>
 <head>
@@ -176,10 +177,10 @@
                                             }
                                         }
                                         foreach ($_vg_kvs as $__k => $__v){
-                                            $_vv = str_replace($__v, "<span style='color:#F33'>{$__k}</span>", $_vv);
+                                            $_vv = $xstring->replaceStrToHtml($__v, "<span style='color:#F33'>{$__k}</span>", $_vv);
                                         }
                                     } else {
-                                        $v['type'] != 'between' && !empty($_vg) && $_vv = str_replace($_vg, "<span style='color:#F33'>{$_vg}</span>", $_vv);
+                                        $v['type'] != 'between' && !empty($_vg) && $_vv = $xstring->replaceStrToHtml($_vg, "<span style='color:#F33'>{$_vg}</span>", $_vv);
                                     }
                                 @endphp {!! $_vv !!}</v>@endif
                         </td>@endif

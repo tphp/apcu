@@ -363,36 +363,6 @@ if(!function_exists('page')) {
     }
 }
 
-
-if(!function_exists('erp')) {
-    function erp($erp, $url, $para = null, $type = null, $header = NULL, $output_encoding = false, $iscurl = true)
-    {
-        if (!class_exists('Api')) {
-            apcu(['class_api']); //加载Tpl类
-        }
-        try {
-            $retinfo = Api::erp($erp, $url, $para, $type, $header, $output_encoding, $iscurl);
-            if ($retinfo === null) {
-                exit("数据接口获取为空：" . $erp['api_host'] . $url . "<BR><BR>");
-            }
-            return $retinfo;
-        } catch (Exception $e) {
-            echo "数据接口异常：" . $erp['api_host'] . $url . "<BR><BR>";
-            exit($e->getMessage());
-        }
-    }
-}
-
-if(!function_exists('erp_cache')) {
-    function erp_cache($url, $para = null, $type = null, $header = NULL, $output_encoding = false, $iscurl = true)
-    {
-        if (!class_exists('Api')) {
-            apcu(['class_api']); //加载Tpl类
-        }
-        return Api::erpCache($url, $para, $type, $header, $output_encoding, $iscurl);
-    }
-}
-
 if(!function_exists('seo')) {
     function seo($config, $use_bool = true)
     {

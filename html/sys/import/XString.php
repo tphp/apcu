@@ -26,4 +26,44 @@ class XString{
         }
         return $str;
     }
+
+    /**
+     * 替换HTML标签中的字符
+     * @param string $search
+     * @param string $replace
+     * @param string $subject
+     * @return mixed
+     */
+    public function replaceStrToHtml($search='', $replace='', $subject=''){
+        $s_len = strlen($subject);
+        $is_tag = false;
+        $tmp_str = "";
+        $ret_str = "";
+        for($i = 0; $i < $s_len; $i ++){
+            $si = $subject[$i];
+            if($si == '<'){
+                $is_tag = true;
+                if(!empty($tmp_str)){
+                    $tmp_str = str_replace($search, $replace, $tmp_str);
+                    $ret_str .= $tmp_str;
+                    $tmp_str = "";
+                }
+                $ret_str .= $si;
+                continue;
+            }elseif($si == '>'){
+                $is_tag = false;
+                $ret_str .= $si;
+                continue;
+            }
+            if($is_tag){
+                $ret_str .= $si;
+            }else{
+                $tmp_str .= $si;
+            }
+        }
+        if(!empty($tmp_str)){
+            $ret_str .= str_replace($search, $replace, $tmp_str);
+        }
+        return $ret_str;
+    }
 }
