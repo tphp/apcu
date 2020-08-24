@@ -532,7 +532,7 @@ return function($data){
                         $ret && $is_show_error = false;
                     }
                     if($is_show_error){
-                        return $this->tplname." Is Error";
+                        return $this->tplname." Is Not Found";
                     }else{
                         return '';
                     }

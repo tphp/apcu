@@ -249,7 +249,7 @@ class DomainsController extends Controller
         $list = tpl($tplful, $config, true);
         if(!is_array($list)){
             if(is_string($list)){
-                return ["<div>{$tpl} is not found</div><div>{$list}</div>", []];
+                abort(404, $list);
             }
             return $list;
         }
