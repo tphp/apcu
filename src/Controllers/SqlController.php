@@ -844,10 +844,10 @@ EOF
     }
     /**
      * 条件构造查询
-     * @param $mod 数据库构造器
+     * @param $db 数据库构造器
      * @param $where 条件查询
      */
-    public function setWhereMod(&$mod, $where, $is_or = false){
+    public function setWhereMod(&$db, $where, $is_or = false){
         if(empty($where) || !is_array($where)){
             return;
         }
@@ -863,11 +863,11 @@ EOF
                 $cmd = 'where';
             }
             if(count($w) > 1) {
-                $mod->$cmd(function ($q) use ($w) {
+                $db->$cmd(function ($q) use ($w) {
                     $this->setWhereQuery($q, $w);
                 });
             }else{
-                $this->setWhereQuery($mod, $w, $is_or);
+                $this->setWhereQuery($db, $w, $is_or);
             }
             $is_or = false;
         }
@@ -876,21 +876,21 @@ EOF
     /**
      * 获取分页信息
      * @param $page
-     * @param $mod
+     * @param $db
      */
-    private function selectGetPageInfo($page, &$mod){
+    private function selectGetPageInfo($page, &$db){
         $pagesize = $page['pagesize'];
         $p = $_GET['p'];
         $p <= 0 && $p =1;
         $cot = 0;
         if($p > 0){
-            $cot = $mod->count();
+            $cot = $db->count();
             $pmaxf = $cot / $pagesize;
             $pmax = intval($pmaxf);
             $pmaxf > $pmax && $pmax++;
             $p > $pmax && $p = $pmax;
         }
-        $pages = $mod->paginate($pagesize, ['*'], 'p', $p);
+        $pages = $db->paginate($pagesize, ['*'], 'p', $p);
         $pages->page = $p;
         $pages->pagesize = $pagesize;
         $pages->pagesizedef = $page['pagesizedef'];
@@ -918,15 +918,15 @@ EOF
         $table = $data['table'];
         $conn = $data['conn'];
         if($is_query){
-            $mod = DB::connection($conn)->table(DB::raw("(".$data['query'].") as query_table"));
-            $pages = $this->selectGetPageInfo($page, $mod);
-            $mod_list = $mod->get();
-            $this->last_sql = $mod->toSql();
-            return [1, json_decode(json_encode($mod_list), true), $pages];
+            $db = DB::connection($conn)->table(DB::raw("(".$data['query'].") as query_table"));
+            $pages = $this->selectGetPageInfo($page, $db);
+            $db_list = $db->get();
+            $this->last_sql = $db->toSql();
+            return [1, json_decode(json_encode($db_list), true), $pages];
         }else {
-            $mod = DB::connection($conn)->table($table);
-            !empty($where) && $this->setWhereMod($mod, $where);
-            !empty($whereAdd) && $this->setWhereMod($mod, $whereAdd);
+            $db = DB::connection($conn)->table($table);
+            !empty($where) && $this->setWhereMod($db, $where);
+            !empty($whereAdd) && $this->setWhereMod($db, $whereAdd);
 
             $cdata = [];
             $isadd = false;
@@ -956,22 +956,22 @@ EOF
                     try {
                         if ($isadd) {
                             empty($pk_name) && $pk_name = 'id';
-                            $pk_value = $mod->insertGetId($newdata);
+                            $pk_value = $db->insertGetId($newdata);
                             if ($pk_value > 0) {
-                                $this->setWhereMod($mod, [['=' => [$pk_name => [$pk_value]]]]);
-                                return [1, json_decode(json_encode($mod->get()), true)];
+                                $this->setWhereMod($db, [['=' => [$pk_name => [$pk_value]]]]);
+                                return [1, json_decode(json_encode($db->get()), true)];
                             } else {
                                 return [0, "增加失败！"];
                             }
                         } else {
-                            !empty($where) && $mod->update($newdata);
+                            !empty($where) && $db->update($newdata);
                         }
                     } catch (\Exception $e) {
                         return [0, "ERROR: " . $e->getMessage() . "<BR>File: " . $e->getFile() . "<BR>Line: " . $e->getLine()];
                     }
                 }
             }
-            $mod->select($field_arr);
+            $db->select($field_arr);
         }
 
         $ispage = $page['ispage'];
@@ -980,26 +980,26 @@ EOF
         if($export_type === 'all'){
             $sql_limit = env('SQL_LIMIT', 10000);
             !is_numeric($sql_limit) && $sql_limit = 10000;
-            $mod->limit($sql_limit);
+            $db->limit($sql_limit);
         }elseif($ispage){
-            $pages = $this->selectGetPageInfo($page, $mod);
+            $pages = $this->selectGetPageInfo($page, $db);
         }else {
             $limit = $data['limit'];
             $offset = $data['offset'];
             (empty($offset) || $offset <= 0) && $offset = 0;
             if ($limit != -1) {
                 (empty($limit) || $limit <= 0) && $limit = 100;
-                $mod->limit($limit)->offset($offset);
+                $db->limit($limit)->offset($offset);
             }
         }
         if(!empty($order)){
             foreach($order as $key=>$val){
-                $mod->orderBy($key, $val);
+                $db->orderBy($key, $val);
             }
         }
-        $this->last_sql = $mod->toSql();
+        $this->last_sql = $db->toSql();
 //        dump($this->last_sql );
-        return [1, json_decode(json_encode($mod->get()), true), $pages];
+        return [1, json_decode(json_encode($db->get()), true), $pages];
     }
 
     /**

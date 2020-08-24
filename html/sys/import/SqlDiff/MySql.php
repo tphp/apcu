@@ -23,20 +23,20 @@ class MySql extends SqlClass
         $conn = $this->conn;
         list($status, $info) = $this->linkedTest($conn);
         if(!$status) return [0, "{$database}:{$info}"];
-        $mod = DB::connection($conn);
-        $version = $mod->select("select version() as v")[0]->v;
+        $db = DB::connection($conn);
+        $version = $db->select("select version() as v")[0]->v;
         $serverset = 'character_set_connection=utf8, character_set_results=utf8, character_set_client=binary';
         $serverset .= $version > '5.0.1' ? ', sql_mode=\'\'' : '';
-        $mod->statement("SET {$serverset}");
+        $db->statement("SET {$serverset}");
 
         $detail = array('table' => array(), 'field' => array(), 'index' => array());
-        $tables = (array)$mod->select("show table status");
+        $tables = (array)$db->select("show table status");
         if ($tables) {
             foreach ($tables as $key_table => $table) {
                 $table = (array)$table;
                 $detail['table'][$table['Name']] = $table;
                 //字段
-                $fields = (array)$mod->select("show full fields from `" . $table['Name'] . "`");
+                $fields = (array)$db->select("show full fields from `" . $table['Name'] . "`");
                 if ($fields) {
                     foreach ($fields as $key_field => $field) {
                         $field = (array)$field;
@@ -48,7 +48,7 @@ class MySql extends SqlClass
                     return [0, '无法获得表的字段:' . $database . ':' . $table['Name']];
                 }
                 //索引
-                $indexes = (array)$mod->select("show index from `" . $table['Name'] . "`");
+                $indexes = (array)$db->select("show index from `" . $table['Name'] . "`");
                 if ($indexes) {
                     foreach ($indexes as $key_index => $index) {
                         $index = (array)$index;
@@ -211,11 +211,11 @@ class MySql extends SqlClass
     protected function buildQuery($diff)
     {
         // TODO: Implement buildQuery() method.
-        
+
         if (empty($diff['table']) && empty($diff['field']) && empty($diff['index'])) {
             return [0, "数据相同，无需同步操作！"];
         }
-        
+
         $sqls = array();
         if ($diff) {
             if (isset($diff['table']['drop'])) {
@@ -325,11 +325,11 @@ class MySql extends SqlClass
         $conn = $this->conn;
         list($status, $info) = $this->linkedTest($conn);
         if(!$status) return [0, "{$database}:{$info}"];
-        $mod = DB::connection($conn);
-        $version = $mod->select("select version() as v")[0]->v;
+        $db = DB::connection($conn);
+        $version = $db->select("select version() as v")[0]->v;
         $serverset = 'character_set_connection=utf8, character_set_results=utf8, character_set_client=binary';
         $serverset .= $version > '5.0.1' ? ', sql_mode=\'\'' : '';
-        $mod->statement("SET {$serverset}");
+        $db->statement("SET {$serverset}");
 
         $cot_ok = 0;
         $cot_no = 0;
@@ -339,7 +339,7 @@ class MySql extends SqlClass
         foreach ($sqls as $key=>$val) {
             foreach ($val as $k=>$v) {
                 try {
-                    $ret = $mod->statement($v);
+                    $ret = $db->statement($v);
                     if($ret > 0){
                         $cot_ok += $ret;
                         $oks[] = $v;
@@ -353,9 +353,9 @@ class MySql extends SqlClass
                 }
             }
         }
-        
+
         $this->saveLogs($database."/".$conn, $oks, $errors);
-        
+
         if($cot_ok > 0){
             $str = "操作成功数: {$cot_ok}";
             if($cot_no > 0){
@@ -405,7 +405,7 @@ class MySql extends SqlClass
         }
         return $retsqls;
     }
-    
+
     private function sqlCol($val)
     {
         switch ($val) {

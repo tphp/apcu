@@ -11,11 +11,11 @@ return function(){
         }
     }
     try{
-        $mod = $this->db($GLOBALS['DOMAIN_CONFIG']['conn']."_menu", "user")->where("status", "=", "1")->select("id", "parent_id", "name", "icon", "url", "params", "type", "sort", "description")->orderBy('sort', 'asc')->orderBy('id', 'desc');
+        $db = $this->db($GLOBALS['DOMAIN_CONFIG']['conn']."_menu", "user")->where("status", "=", "1")->select("id", "parent_id", "name", "icon", "url", "params", "type", "sort", "description")->orderBy('sort', 'asc')->orderBy('id', 'desc');
         if(!empty($menu_ids_gt)){
-            $mod->whereIn('id', $menu_ids_gt);
+            $db->whereIn('id', $menu_ids_gt);
         }
-        $menulist = $mod->get();
+        $menulist = $db->get();
     }catch (Exception $e){
         $this->flushCache();
         redirect("/sys/user/login")->send();

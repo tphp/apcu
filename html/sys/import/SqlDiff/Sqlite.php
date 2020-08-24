@@ -166,12 +166,12 @@ class Sqlite extends SqlClass{
         $sqls = $this->sqls;
         $errors = [];
         $oks = [];
-        $mod = DB::connection($this->conn);
+        $db = DB::connection($this->conn);
         foreach ($sqls as $key=>$val) {
             foreach ($val as $k=>$v) {
                 foreach ($v as $vv){
                     try {
-                        $ret = $mod->statement($vv);
+                        $ret = $db->statement($vv);
                         if($ret > 0){
                             $cot_ok += $ret;
                             $oks[] = $vv;

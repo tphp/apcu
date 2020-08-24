@@ -851,11 +851,11 @@ return function($data){
                     }
                 }
                 if(empty($table) || $table === false) {
-                    $mod = \DB::connection($conn);
+                    $db = \DB::connection($conn);
                 }else{
-                    $mod = \DB::connection($conn)->table($table);
+                    $db = \DB::connection($conn)->table($table);
                 }
-                return $mod;
+                return $db;
 			}
 
             /**
@@ -939,14 +939,14 @@ return function($data){
 
             /**
              * 设置条件查询
-             * @param $mod
+             * @param $db
              * @param $where
              */
-            public function setWhere(&$mod, $where=[], $fieldall=[]){
+            public function setWhere(&$db, $where=[], $fieldall=[]){
                 $sql = $this->getSqlController();
                 list($status, $w) = $sql->getWhere($where, $fieldall);
                 !$status && $w = [];
-                $sql->setWhereMod($mod, $w);
+                $sql->setWhereMod($db, $w);
             }
 
 			/**

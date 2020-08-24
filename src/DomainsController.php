@@ -204,11 +204,11 @@ class DomainsController extends Controller
         }
 
         if(empty($table)) {
-            $mod = \DB::connection($conn);
+            $db = \DB::connection($conn);
         }else{
-            $mod = \DB::connection($conn)->table($table);
+            $db = \DB::connection($conn)->table($table);
         }
-        return $mod;
+        return $db;
     }
 
     /**

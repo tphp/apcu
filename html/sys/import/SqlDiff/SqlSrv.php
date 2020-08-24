@@ -26,9 +26,9 @@ class SqlSrv extends SqlClass{
         list($status, $info) = $this->linkedTest($conn);
         if(!$status) return [0, "{$database}:{$info}"];
 
-        $mod = DB::connection($conn);
+        $db = DB::connection($conn);
         //遍历表
-        $ret = $this->getListToKeyValue($mod->select(<<<EOF
+        $ret = $this->getListToKeyValue($db->select(<<<EOF
 SELECT
     d.name as 'table',
     a.name as field,
@@ -362,11 +362,11 @@ EOF
         $sqls = $this->sqls;
         $errors = [];
         $oks = [];
-        $mod = DB::connection($this->conn);
+        $db = DB::connection($this->conn);
         foreach ($sqls as $key=>$val) {
             foreach ($val as $k=>$v) {
                 try {
-                    $ret = $mod->statement($v);
+                    $ret = $db->statement($v);
                     if($ret > 0){
                         $cot_ok += $ret;
                         $oks[] = $v;

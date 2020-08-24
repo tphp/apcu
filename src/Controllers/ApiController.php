@@ -562,9 +562,9 @@ class ApiController
         if(is_null($values)){
             $values = 0;
         }
-        $mod = $this->tplclass->db($table, $conn)->select($child, $parent, $oper_title)
+        $db = $this->tplclass->db($table, $conn)->select($child, $parent, $oper_title)
             ->where($parent, $values);
-        if(!empty($notvalues)) $mod->whereNotIn($child, $notvalues);
+        if(!empty($notvalues)) $db->whereNotIn($child, $notvalues);
         $def_conn = $this->vim->config['config']['conn'];
         empty($def_conn) && $def_conn = $GLOBALS['DOMAIN_CONFIG']['conn'];
         $def_table = $this->vim->config['config']['table'];
@@ -572,7 +572,7 @@ class ApiController
             $order = $this->retconfig['config']['order'];
             if(!empty($order)) {
                 foreach ($order as $key => $val) {
-                    $mod->orderBy($key, $val);
+                    $db->orderBy($key, $val);
                 }
             }
         }
@@ -580,17 +580,17 @@ class ApiController
         $tree_sort = $tree['sort'];
         if(!empty($tree_sort) && is_array($tree_sort)){
             if(is_string($tree_sort[0]) && is_string($tree_sort[1])){
-                $mod->orderBy($tree_sort[0], $tree_sort[1]);
+                $db->orderBy($tree_sort[0], $tree_sort[1]);
             } else {
                 foreach ($tree_sort as $key => $val) {
                     if (is_string($key) && is_string($val)) {
-                        $mod->orderBy($key, $val);
+                        $db->orderBy($key, $val);
                     }
                 }
             }
         }
 
-        $childlist = $mod->get();
+        $childlist = $db->get();
         $childs = [];
         foreach ($childlist as $key=>$val){
             $val = $this->keyToLower($val);
@@ -601,10 +601,10 @@ class ApiController
             ];
         }
 
-        $mod2 = $this->tplclass->db($table, $conn)->select(\DB::raw("count(*) as count, {$parent}"))
+        $db2 = $this->tplclass->db($table, $conn)->select(\DB::raw("count(*) as count, {$parent}"))
             ->whereIn($parent, $childs);
-        if(!empty($notvalues)) $mod2->whereNotIn($child, $notvalues);
-        $grouplist = $mod2->groupBy($parent)->get();
+        if(!empty($notvalues)) $db2->whereNotIn($child, $notvalues);
+        $grouplist = $db2->groupBy($parent)->get();
         foreach ($grouplist as $key=>$val){
             $val = $this->keyToLower($val);
             $retlist[$values]['listmore'][$val[$parent]] = $val['count'];
@@ -636,14 +636,14 @@ class ApiController
      * @return array
      */
     private function getTreeListNext($table, $parent, $child, $value, $name, $sort, $where, &$ret = []){
-        $mod = $this->tplclass->db($table)->select($child, $parent, $name)->whereIn($parent, $value);
+        $db = $this->tplclass->db($table)->select($child, $parent, $name)->whereIn($parent, $value);
         if(!empty($sort)){
-            $mod->orderBy($sort[0], $sort[1]);
+            $db->orderBy($sort[0], $sort[1]);
         }
         if(!empty($where)){
-            $this->tplclass->setWhere($mod, $where, $this->allfield);
+            $this->tplclass->setWhere($db, $where, $this->allfield);
         }
-        $list = $mod->get();
+        $list = $db->get();
         $values = [];
         foreach ($list as $key=>$val){
             $val = $this->keyToLower($val);
@@ -2835,20 +2835,20 @@ class ApiController
         }
 
         if(empty($connname)){
-            $mod = $this->tplclass->db($tablename);
-            $moddel = $this->tplclass->db($tablename);
+            $db = $this->tplclass->db($tablename);
+            $db_del = $this->tplclass->db($tablename);
         }else{
-            $mod = $this->tplclass->db($tablename, $connname);
-            $moddel = $this->tplclass->db($tablename, $connname);
+            $db = $this->tplclass->db($tablename, $connname);
+            $db_del = $this->tplclass->db($tablename, $connname);
         }
 
         foreach ($pklist as $key=>$val){
-            $moddel->orWhereIn($key, $val);
+            $db_del->orWhereIn($key, $val);
         }
         try {
-            $moddel->delete();
-            if ($mod->count() <= 0) {
-                $mod->truncate();
+            $db_del->delete();
+            if ($db->count() <= 0) {
+                $db->truncate();
             }
         }catch (\Exception $e){
             $this->__exitError($e->getMessage());
@@ -2969,13 +2969,13 @@ class ApiController
         }
 
         if(empty($connname)){
-            $mod = $this->tplclass->db($tablename);
+            $db = $this->tplclass->db($tablename);
         }else{
-            $mod = $this->tplclass->db($tablename, $connname);
+            $db = $this->tplclass->db($tablename, $connname);
         }
 
         try {
-            $mod->truncate();
+            $db->truncate();
         }catch (\Exception $e){
             $this->__exitError($e->getMessage());
         }
