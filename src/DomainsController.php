@@ -22,7 +22,7 @@ class DomainsPath
         if (defined("BASE_TPL_PATH_TOP")) {
             $top_path = trim(trim(BASE_TPL_PATH_TOP, "/")) . "/";
         }
-        list($this->tpl_path, $this->tpl_type, $this->args) = $this->get_tpl_path();
+        list($this->tpl_path, $this->tpl_type, $this->args) = $this->getTplPath();
         $config = $GLOBALS['DOMAIN_CONFIG'];
         $is_backstage = false;
         if (isset($config['backstage']) && $config['backstage'] === true) {
@@ -85,7 +85,7 @@ class DomainsPath
      * @param $request
      * @return string
      */
-    private function get_tpl_path()
+    private function getTplPath()
     {
         $request = Request();
         $a = [];

@@ -2306,7 +2306,7 @@ return function($data){
                         if(!empty($val) && is_array($val)){
                             list($w, $h) = $val;
                             if($w > 0 && $h > 0) {
-                                $upload->addReSize($w, $h, $key);
+                                $upload->addResize($w, $h, $key);
                             }
                         }
                     }

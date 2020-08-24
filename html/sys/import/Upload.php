@@ -25,7 +25,7 @@ class Upload
      * @param int $h 高
      * @return $this
      */
-    public function addReSize($w=0, $h=0, $keyname = ""){
+    public function addResize($w=0, $h=0, $keyname = ""){
         if($w > 0 && $h > 0) {
             $resize = $this->resize;
             $resize[$keyname] = [$w, $h];
