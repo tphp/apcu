@@ -211,12 +211,13 @@ class DomainsController extends Controller
         return $mod;
     }
 
-	/**
-	 * 获取模板文件
-	 * @param string $tpl
-	 * @param array $config
-	 * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
-	 */
+    /**
+     * 获取模板文件
+     * @param string $tpl
+     * @param string $type
+     * @param array $config
+     * @return array
+     */
 	protected function _tpl_($tpl = '', $type = 'html', $config = []){
 	    $tplful = $tpl.".".$type;
 		empty($config) && $config = [];
@@ -246,7 +247,12 @@ class DomainsController extends Controller
             $layout = "";
         }
         $list = tpl($tplful, $config, true);
-        if(!is_array($list)) return $list;
+        if(!is_array($list)){
+            if(is_string($list)){
+                return ["<div>{$tpl} is not found</div><div>{$list}</div>", []];
+            }
+            return $list;
+        }
 
         if(count($list) == 2 && $list[0] == -100100){
             $l1 = $list[1];
