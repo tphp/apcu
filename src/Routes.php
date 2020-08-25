@@ -9,6 +9,9 @@ use Tphp\Apcu\Controllers\TplController;
 
 error_reporting(E_ALL ^ E_NOTICE);
 
+// 默认时区设置为中国上海
+date_default_timezone_set(env("TIMEZONE", 'Asia/Shanghai'));
+
 class Routes{
     /**
      * 设置默认配置

@@ -438,14 +438,16 @@ class ApiController
                 if(in_array($keyname, ['create_time', 'update_time', 'time'])) $tp = $keyname;
             }
             if(empty($sql[$keyname]) && in_array($tp, ['create_time', 'update_time'])){
+                // 当数据不为空则转换
                 $sql[$keyname] = [
-                    ['date', 'Y-m-d H:i:s']
+                    ['date', 'Y-m-d H:i:s', true]
                 ];
             }elseif($tp == 'time'){
                 $atp = $afd[$keyname]['type'];
                 if(strpos($atp, 'int') !== false) {
+                    // 当数据不为空则转换
                     $sql[$keyname] = [
-                        ['date', 'Y-m-d H:i:s']
+                        ['date', 'Y-m-d H:i:s', true]
                     ];
                 }
             }
@@ -2030,14 +2032,32 @@ class ApiController
      * @param $data
      */
     protected function editConfigSetdata($type){
-        $vch = &$this->vimconfig_handle;
+        $vch = $this->vimconfig_handle;
         $vcf = $this->vimconfig_field;
         $afd = $this->allfield;
         $is_post = $this->tplclass->isPost();
         $is_post && $data = &$_POST;
         $field_unsets = [];
-        if(!empty($vch) && is_array($vch)) {
-            foreach ($vch as $key => $val) {
+
+        $date_vch = $vch;
+        if(!is_array($date_vch)){
+            $date_vch = [];
+        }
+        if(is_array($vcf)){
+            foreach ($vcf as $key => $val) {
+                if(in_array($val['type'], ['create_time', 'update_time', 'time'])){
+                    if(!isset($date_vch[$key])){
+                        $date_vch[$key] = $val;
+                    }
+                }elseif(empty($val['type']) && in_array($key, ['create_time', 'update_time'])){
+                    if(!isset($date_vch[$key])){
+                        $date_vch[$key] = $val;
+                    }
+                }
+            }
+        }
+        if(!empty($date_vch) && is_array($date_vch)) {
+            foreach ($date_vch as $key => $val) {
                 $keyname = $key;
                 if (!is_string($keyname)) {
                     is_string($val) && $keyname = $val;
@@ -2060,7 +2080,14 @@ class ApiController
                     }
                 } elseif ($t == 'time'){
                     if(strpos($afd[$keyname]['type'], 'int') !== false){
-                        $data[$keyname] = strtotime($data[$keyname]);
+                        $dk = $data[$keyname];
+                        if(isset($dk)){
+                            if(empty($dk)){
+                                $data[$keyname] = 0;
+                            }else{
+                                $data[$keyname] = strtotime($dk);
+                            }
+                        }
                     }
                 }
             }
