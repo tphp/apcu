@@ -603,7 +603,11 @@ return function($data){
                                 $retdata = "<div class=\"{$class}\" tpl=\"{$tplname}\">\r\n{$tplview}\r\n</div>";
                             }
                         } else {
-                            if(!$status) {
+                            if($status) {
+                                if(is_array($retdata) && empty($retdata['_'])){
+                                    $retdata = "";
+                                }
+                            }else{
                                 if (empty($retdata['_'])) {
                                     $retdata = "404 ERROR";
                                 } else {
