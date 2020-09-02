@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Response;
 class DomainsPath
 {
 
-    function __construct()
+    function __construct($tpl='')
     {
         config(["database.default_src" => config('database.default')]);
         $tpl_base = TPHP_TPL_PATH . "/";
@@ -22,7 +22,7 @@ class DomainsPath
         if (defined("BASE_TPL_PATH_TOP")) {
             $top_path = trim(trim(BASE_TPL_PATH_TOP, "/")) . "/";
         }
-        list($this->tpl_path, $this->tpl_type, $this->args) = $this->getTplPath();
+        list($this->tpl_path, $this->tpl_type, $this->args) = $this->getTplPath($tpl);
         $config = $GLOBALS['DOMAIN_CONFIG'];
         $is_backstage = false;
         if (isset($config['backstage']) && $config['backstage'] === true) {
@@ -85,19 +85,21 @@ class DomainsPath
      * @param $request
      * @return string
      */
-    private function getTplPath()
+    private function getTplPath($tpl='')
     {
-        $request = Request();
-        $a = [];
-        for ($i = 1; $i < 10; $i++) {
-            $api_name = "api_name_{$i}";
-            $arg = $request->$api_name;
-            if (empty($arg) || trim($arg) == "") {
-                break;
+        if(empty($tpl)) {
+            $request = Request();
+            $a = [];
+            for ($i = 1; $i < 10; $i++) {
+                $api_name = "api_name_{$i}";
+                $arg = $request->$api_name;
+                if (empty($arg) || trim($arg) == "") {
+                    break;
+                }
+                $a[] = $arg;
             }
-            $a[] = $arg;
+            $tpl = implode("/", $a);
         }
-        $tpl = implode("/", $a);
 
         $pos = strrpos($tpl, ".");
         if ($pos <= 0) {
@@ -150,14 +152,14 @@ class DomainsPath
     }
 }
 
-global $domains_path;
-$domains_path = new DomainsPath();
-
 class DomainsController extends Controller
 {
 
-	function __construct() {
-        global $domains_path;
+	function __construct($tpl='') {
+        if(empty($GLOBALS['DOMAIN_PATH'])){
+            $GLOBALS['DOMAIN_PATH'] = new DomainsPath($tpl);
+        }
+        $domains_path = $GLOBALS['DOMAIN_PATH'];
         foreach ($domains_path as $key=>$val){
             $this->$key = $val;
         }

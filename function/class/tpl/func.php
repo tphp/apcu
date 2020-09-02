@@ -11,7 +11,7 @@ return function($data){
             class ExtController extends \InitController{
                 public function __construct()
                 {
-                    global $domains_path;
+                    $domains_path = $GLOBALS['DOMAIN_PATH'];
                     parent::__construct($domains_path->tpl_path, $domains_path->tpl_type, $domains_path->args);
                 }
             }
