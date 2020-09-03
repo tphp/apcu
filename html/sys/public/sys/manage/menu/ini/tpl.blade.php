@@ -1,5 +1,5 @@
 @php
-    $static_tphp = "/".config('path.static_tphp')
+    $static_tphp = config('path.static_tphp')
 @endphp
 <div class="layui-collapse" style="border-top: none; border-left: none; border-right: none">
 @foreach($_ as $key=>$val)

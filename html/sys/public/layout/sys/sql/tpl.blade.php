@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 @php
-    $static_tphp = "/".config('path.static_tphp');
+    $static_tphp = config('path.static_tphp');
     $verify_file = dirname($static_tphp)."/tphp_ext/verify.js";
-    $static = "/".config('path.static');
+    $static = config('path.static');
     $staticadmin = $static_tphp."admin/";
     $md5_css = tpl_css();
     $md5_js = tpl_js();

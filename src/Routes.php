@@ -34,7 +34,10 @@ class Routes{
         }
         $v_paths[] = $tphp_path."/html";
         config(["view.paths" => $v_paths]);
-        $static = env("STATIC", "static/");
+        $static = env("STATIC", "static");
+        if(strpos($static, "://") === false){
+            $static = "/" . trim($static, "/") . "/";
+        }
         if(empty(config('path.static'))){
             config(["path.static" => env("STATIC", $static)]);
         }

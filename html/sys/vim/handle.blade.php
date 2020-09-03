@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 @php
-    $static_tphp = "/".config('path.static_tphp');
+    $static_tphp = config('path.static_tphp');
     $staticadmin = $static_tphp."admin/";
     $includepath = $tpl_base.$tpl_path."/vimh";
     $is_ie = is_ie();

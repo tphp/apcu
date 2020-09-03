@@ -141,9 +141,8 @@ class CaptchaExt
         // 验证码字体随机颜色
         $this->_color = imagecolorallocate($this->_image, mt_rand(1, 150), mt_rand(1, 150), mt_rand(1, 150));
         // 验证码使用随机字体
-        //$ttfPath = __DIR__ . '/../assets/' . ($this->useZh ? 'zhttfs' : 'ttfs') . '/';
-        $ttfPath = public_path(config('path.static_tphp').'font/');
-        //$ttfPath = "/".config('path.static_tphp').'font/';
+
+        $ttfPath = TPHP_PATH . '/static/font/';
 
         if (empty($this->fontttf)) {
             $dir  = dir($ttfPath);
@@ -282,8 +281,7 @@ class CaptchaExt
      */
     private function _backGround()
     {
-        //$path = dirname(__FILE__) . '/verify/bgs/';
-        $path = public_path(config('path.static_tphp').'img/icon/');
+        $path = TPHP_PATH . '/static/img/icon/';
         $dir  = dir($path);
 
         $bgs = [];

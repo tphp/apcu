@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 @php
-    $static_tphp = "/".config('path.static_tphp');
-    $static = "/".config('path.static');
+    $static_tphp = config('path.static_tphp');
+    $static = config('path.static');
     $staticadmin = $static."admin/";
     $md5_css = tpl_css();
     $md5_js = tpl_js();

@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 @php
-    $static_tphp = "/".config('path.static_tphp');
+    $static_tphp = config('path.static_tphp');
     $conf_url = rtrim(trim(getenv('URL_CONF')), '\\/') . "/";
     $css = $data['css'];
     empty($css) && $css = [];

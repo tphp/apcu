@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 @php
-    $static_tphp = "/".config('path.static_tphp');
+    $static_tphp = config('path.static_tphp');
     $liburl = $static_tphp."api/dev/info/";
 @endphp
 <html>

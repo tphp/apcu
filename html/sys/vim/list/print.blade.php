@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-@define $static_tphp = "/".config('path.static_tphp')
+@define $static_tphp = config('path.static_tphp')
 <html>
 <head>
     <meta charset="utf-8">

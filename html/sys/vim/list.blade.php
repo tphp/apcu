@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 @php
-    $static_tphp = "/".config('path.static_tphp');
-    $static = "/".config('path.static');
+    $static_tphp = config('path.static_tphp');
+    $static = config('path.static');
     $staticadmin = $static_tphp."admin/";
     $includepath = $tpl_base.$tpl_path."/viml";
     $is_ie = is_ie();

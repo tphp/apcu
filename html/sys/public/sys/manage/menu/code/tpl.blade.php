@@ -1,5 +1,5 @@
 {{--{!! dd($info) !!}--}}
-@define $static_tphp = "/".config('path.static_tphp')
+@define $static_tphp = config('path.static_tphp')
 @if(empty($_['url']))
     <div class="red" style="margin: 20px;">请设置模块链接后再操作！</div>
 @else
