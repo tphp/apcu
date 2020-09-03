@@ -13,9 +13,9 @@ if(!empty($pk)){
 if(empty($id)){
     $user_info = $this->db('admin', $conn)->orderBy('id', 'desc')->first();
     if(empty($user_info)){
-        $id = 1;
+        $id = 0;
     }else{
-        $id = $user_info->id + 1;
+        $id = $user_info->id;
     }
 }
 $b_path = $conn."/".$id;
