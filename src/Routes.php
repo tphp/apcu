@@ -37,9 +37,11 @@ class Routes{
         $static = env("STATIC", "static");
         if(strpos($static, "://") === false){
             $static = "/" . trim($static, "/") . "/";
+        }else{
+            $static = rtrim($static, "/") . "/";
         }
         if(empty(config('path.static'))){
-            config(["path.static" => env("STATIC", $static)]);
+            config(["path.static" => $static]);
         }
         if(empty(config('path.static_tphp'))){
             config(["path.static_tphp" => env("STATIC_TPHP", $static."tphp/")]);
