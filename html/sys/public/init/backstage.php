@@ -30,6 +30,7 @@ class InitController extends Controller {
             }
         }
         $this->userinfo = $userinfo;
+        $GLOBALS['USERINFO'] = $userinfo;
 
         if(empty($type) || $type == 'html'){
             $url = $tpl;

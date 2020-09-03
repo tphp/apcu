@@ -33,6 +33,13 @@
         $title = "TPHP后台系统";
     }
     $menu_status = __get_cookie('menu_status');
+    $userinfo = $GLOBALS['USERINFO'];
+    if(!empty($userinfo) && is_array($userinfo)){
+        if(is_file(public_path($userinfo['image']))){
+            $image = $userinfo['image'];
+        }
+        $username = $userinfo['username'];
+    }
 @endphp
 <html lang="zh-CN">
 <head>
