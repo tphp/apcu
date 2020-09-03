@@ -319,9 +319,30 @@ class DomainsController extends Controller
                 }
             }
 
-            empty($data['title']) ? $title = "" : $title = $data['title'];
-            empty($data['keywords']) ? $keywords = "" : $keywords = $data['keywords'];
-            empty($data['description']) ? $description = "" : $description = $data['description'];
+            // 标题
+            if(isset($data['title'])){
+                $title = $data['title'];
+            }elseif(isset($dc['title'])){
+                $title = $dc['title'];
+            }
+            empty($title) && $title = "";
+
+            // 关键词
+            if(isset($data['keywords'])){
+                $keywords = $data['keywords'];
+            }elseif(isset($dc['keywords'])){
+                $keywords = $dc['keywords'];
+            }
+            empty($keywords) && $keywords = "";
+
+            // 描述
+            if(isset($data['description'])){
+                $description = $data['description'];
+            }elseif(isset($dc['description'])){
+                $description = $dc['description'];
+            }
+            empty($description) && $description = "";
+
 			if ($layout_bool) {
 			    $args_url = $argsinfo['url'];
 			    empty($args_url) && $args_url = "";

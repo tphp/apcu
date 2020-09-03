@@ -172,6 +172,8 @@ class Routes{
                             'conn', // 数据库链接标识
                             'backstage', // 是否是后台
                             'title', // 页面标题
+                            'keywords', // 页面关键词
+                            'description', // 页面描述
                             'color', // 后台主题颜色 ['088', '0aa']
                             'user', // 用户登录数据库，默认为user数据库标识
                             'args', // URL前置参数绑定设置 如 /name/subname
