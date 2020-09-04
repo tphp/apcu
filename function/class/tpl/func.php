@@ -2041,7 +2041,14 @@ return function($data){
                     }
                     if($val[0] == '@'){
                         // 外部链接以 @ 开头，可以是本页面的相对或绝对路径
-                        $extarr[] = ltrim($val, '@');
+                        $_val = ltrim($val, '@');
+                        if(!empty($_val)) {
+                            if ($val[1] == '@' && $type == 'js') {
+                                $extarr[] = '@' . $_val;
+                            } else {
+                                $extarr[] = $_val;
+                            }
+                        }
                     }elseif(strpos($val, '://')){
                         // 外部链接以 http:// 或 https:// 开头
                         $extarr[] = $val;

@@ -221,20 +221,25 @@ class DomainsController extends Controller
             }
         }
 
-        $css_str = "";
+        $top_str = "";
         if(!empty($css)){
             foreach ($css as $c){
-                $css_str .= $t_str.'<link rel="stylesheet" href="'.$c.'" />'."\n";
+                $top_str .= $t_str.'<link rel="stylesheet" href="'.$c.'" />'."\n";
             }
         }
-        $js_str = "";
+        $down_str = "";
         if(!empty($js)){
-            empty($html_right) && $js_str .= "\n";
+            empty($html_right) && $down_str .= "\n";
             foreach ($js as $j){
-                $js_str .= '<script src="'.$j.'"></script>'."\n";
+                if($j[0] == '@'){
+                    $j = ltrim($j, '@');
+                    $top_str .= $t_str.'<script src="'.$j.'"></script>'."\n";
+                }else{
+                    $down_str .= '<script src="'.$j.'"></script>'."\n";
+                }
             }
         }
-	    $html = $html_left.$css_str.$html_mid.$js_str.$html_right;
+	    $html = $html_left.$top_str.$html_mid.$down_str.$html_right;
 	    return $html;
     }
 
