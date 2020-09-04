@@ -282,10 +282,11 @@ class DomainsController extends Controller
                 $retrp->withCookie(Cookie::forget($val));
             }
         }
-        if($this->is_rebuild_html) {
+        $obj = $this->obj;
+        if($this->is_rebuild_html && !empty($obj)) {
             // 必须先运行获取配置
-            $css = tpl_css();
-            $js = tpl_js();
+            $css = $obj->getCss();
+            $js = $obj->getJs();
 
             // 再根据配置进行设置CSS或JS
             $dfs = $GLOBALS['DATA_FILE_STATIC'];
@@ -381,6 +382,7 @@ class DomainsController extends Controller
 		if(isset($oconf['layout'])){
             $layout = $oconf['layout'];
         }
+        $this->obj = $obj;
         $type = $obj->tpl_type;
 		if($layout !== false && !in_array($type, ['list', 'testlist'])) {
 		    empty($layout) && $layout = $this->tpl_path;

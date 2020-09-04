@@ -309,30 +309,6 @@ if(!function_exists('tpl_class')) {
     }
 }
 
-//获取合并CSS代码
-if(!function_exists('tpl_css')) {
-    function tpl_css()
-    {
-        if (!class_exists('Tpl')) {
-            apcu(['class_tpl']); //加载Tpl类
-        }
-        $obj = new Tpl(false);
-        return $obj->getCss();
-    }
-}
-
-//获取合并JS代码
-if(!function_exists('tpl_js')) {
-    function tpl_js()
-    {
-        if (!class_exists('Tpl')) {
-            apcu(['class_tpl']); //加载Tpl类
-        }
-        $obj = new Tpl(false);
-        return $obj->getJs();
-    }
-}
-
 /**
  * 输出分页HTML代码
  * @param int $type 分页类型
