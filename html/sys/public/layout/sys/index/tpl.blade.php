@@ -2,8 +2,6 @@
 @php
     $static_tphp = config('path.static_tphp');
     $static = $static_tphp."admin/";
-    $md5_css = tpl_css();
-    $md5_js = tpl_js();
     $title = $_DC_['title'];
     $color = $_DC_['color'];
 

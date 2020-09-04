@@ -173,11 +173,97 @@ class DomainsController extends Controller
         $this->__sys_path = dirname(__DIR__)."/sys/";
 	}
 
+    /**
+     * 建立动态CSS或JS
+     * @param $html
+     * @return string
+     */
+	private static function obRebuildStatic($html){
+        $dfs = $GLOBALS['DATA_FILE_STATIC'];
+        $css = $dfs['css'];
+        if(empty($css)){
+            $css = [];
+        }
+        if(!empty($dfs['css_md5'])){
+            $css[] = url('/static/tpl/css/'.$dfs['css_md5'].'.css');
+        }
+
+        $js = $dfs['js'];
+        if(empty($js)){
+            $js = [];
+        }
+        if(!empty($dfs['js_md5'])){
+            $js[] = url('/static/tpl/js/'.$dfs['js_md5'].'.js');
+        }
+        $html_lower = strtolower($html);
+
+        $pos_head = strpos($html_lower, '</head>');
+        $pos_body = strrpos($html_lower, '</body>');
+        $t_str = "";
+        if($pos_head > 0){
+            $t_str = "\t";
+            $html_left = substr($html, 0, $pos_head);
+            if($pos_body > 0){
+                $html_mid = substr($html, $pos_head, $pos_body - $pos_head);
+                $html_right = substr($html, $pos_body);
+            }else{
+                $html_mid = substr($html, $pos_head);
+                $html_right = "";
+            }
+        }else{
+            $html_left = "";
+            if($pos_body > 0){
+                $html_mid = substr($html, 0, $pos_body);
+                $html_right = substr($html, $pos_body);
+            }else{
+                $html_mid = $html;
+                $html_right = "";
+            }
+        }
+
+        $css_str = "";
+        if(!empty($css)){
+            foreach ($css as $c){
+                $css_str .= $t_str.'<link rel="stylesheet" href="'.$c.'" />'."\n";
+            }
+        }
+        $js_str = "";
+        if(!empty($js)){
+            empty($html_right) && $js_str .= "\n";
+            foreach ($js as $j){
+                $js_str .= '<script src="'.$j.'"></script>'."\n";
+            }
+        }
+	    $html = $html_left.$css_str.$html_mid.$js_str.$html_right;
+	    return $html;
+    }
+
+    /**
+     * 返回JSON页面格式
+     * @param $html
+     * @return string
+     */
+    private static function obExitJson($html)
+    {
+        $html_de = json_decode($html, true);
+        if (empty($html_de)) {
+            return $html;
+        } else {
+            try {
+                header('Content-Type:application/json charset=utf-8');
+            } catch (Exception $e) {
+                // TODO
+            }
+            return json_encode($html_de, JSON_UNESCAPED_UNICODE);
+        }
+    }
+
 	/**
 	 * 载入加载模块
 	 * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
 	 */
 	public function tpl(){
+	    $this->is_rebuild_html = false;
         list($html, list($cookies, $cookies_forget)) = $this->_tpl_($this->tpl_path, $this->tpl_type);
         $retrp = Response::make($html);
         if(is_array($cookies)) {
@@ -194,6 +280,27 @@ class DomainsController extends Controller
             //cookies删除
             foreach ($cookies_forget as $val) {
                 $retrp->withCookie(Cookie::forget($val));
+            }
+        }
+        if($this->is_rebuild_html) {
+            // 必须先运行获取配置
+            $css = tpl_css();
+            $js = tpl_js();
+
+            // 再根据配置进行设置CSS或JS
+            $dfs = $GLOBALS['DATA_FILE_STATIC'];
+            if(empty($dfs)){
+                $dfs = [];
+            }
+            if(!empty($css)){
+                $dfs['css_md5'] = $css;
+            }
+            if(!empty($js)){
+                $dfs['js_md5'] = $js;
+            }
+            if(!empty($dfs)){
+                $GLOBALS['DATA_FILE_STATIC'] = $dfs;
+                ob_start('self::obRebuildStatic');
             }
         }
         return $retrp;
@@ -261,13 +368,13 @@ class DomainsController extends Controller
             if(is_array($l1)){
                 $l1 = json_encode($l1, JSON_UNESCAPED_UNICODE);
             }
-            ob_start("__ob_exit_json");
+            ob_start("self::obExitJson");
             return [$l1, []];
         }
 
         list($__tpl__, $retdata, $cookiesinfo, $exitjson, $obj) = $list;
 		if(!empty($exitjson)){
-            ob_start("__ob_exit_json");
+            ob_start("self::obExitJson");
 		    return [$exitjson, $cookiesinfo];
         }
         $oconf = $obj->config;
@@ -362,11 +469,14 @@ class DomainsController extends Controller
                         !isset($retdata[$key]) && $retdata[$key] = $val;
                     }
                 }
+                $this->is_rebuild_html = true;
 				return [view($layout, $retdata), $cookiesinfo];
 			}
 		}
         if(is_array($__tpl__)){
             $__tpl__ = json_encode($__tpl__, true);
+        }else{
+            $this->is_rebuild_html = true;
         }
 		return [$__tpl__, $cookiesinfo];
 	}

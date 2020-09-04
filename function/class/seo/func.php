@@ -5,11 +5,6 @@
  */
 return function($data){
 	if(!class_exists('Seo')) {
-
-		function __set_seo($html){
-			return __Seo::seoRet($html);
-		}
-
 		class __Seo {
 			private static $config = null;
 
@@ -83,7 +78,7 @@ return function($data){
 					}
 				}
 				self::$config = $config;
-				ob_start('__set_seo');
+				ob_start('self::seoRet');
 			}
 
 			function __destruct(){

@@ -202,14 +202,6 @@
 <div style="width: 1px; height: 1px;overflow: hidden;"><textarea id="WindowCopy" style="border: none;"></textarea></div>
 <script src="{{url($staticadmin.'vim/js/list.js')}}" charset="utf-8"></script>
 <script src="{{url($static_tphp.'layui/lay/modules/formselects-v4.js')}}" @if($is_ie) type="text/babel" @else type="text/javascript" charset="utf-8" @endif></script>
-@php
-    $md5_css = tpl_css();
-    $md5_js = tpl_js();
-@endphp
-@if(!empty($md5_css))<link rel="stylesheet" href="{{ url($static.'tpl/css/'.$md5_css.'.css')}}">
-@endif
-@if(!empty($md5_js))<script src="{{ url($static.'tpl/js/'.tpl_js().'.js')}}"></script>
-@endif
 @if(view()->exists($includepath))@include($includepath)
 @endif
 </body>

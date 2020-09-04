@@ -333,24 +333,6 @@ if(!function_exists('tpl_js')) {
     }
 }
 
-//正确显示CSS格式
-if(!function_exists('ob_tpl_css')) {
-    function ob_tpl_css($code)
-    {
-        header('Content-type:text/css');
-        return $code;
-    }
-}
-
-//正确显示JS格式
-if(!function_exists('ob_tpl_js')) {
-    function ob_tpl_js($code)
-    {
-        header('Content-type:application/x-javascript');
-        return $code;
-    }
-}
-
 /**
  * 输出分页HTML代码
  * @param int $type 分页类型
@@ -412,27 +394,6 @@ if(!function_exists('message')) {
     function message($code = 0, $msg = "", $data = [])
     {
         return ['_IS_OPERATE_JSON_' => true, 'data' => [$code, $msg, $data]];
-    }
-}
-
-/**
- * 返回为json格式数据并退出
- * @param $obj
- */
-if(!function_exists('__ob_exit_json')) {
-    function __ob_exit_json($html)
-    {
-        $html_de = json_decode($html, true);
-        if (empty($html_de)) {
-            return $html;
-        } else {
-            try {
-                header('Content-Type:application/json charset=utf-8');
-            } catch (Exception $e) {
-                // TODO
-            }
-            return json_encode($html_de, JSON_UNESCAPED_UNICODE);
-        }
     }
 }
 

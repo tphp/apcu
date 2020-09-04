@@ -253,17 +253,11 @@
 @endif
 
 @php
-    $md5_css = tpl_css();
-    $md5_js = tpl_js();
     $verify_file = dirname($static_tphp)."/tphp_ext/verify.js";
 @endphp
 @if(is_file(public_path($verify_file)))<script src="{{url($verify_file)}}" charset="utf-8"></script>
 @endif
 <script src="{{url($staticadmin.'vim/js/edit.js')}}" charset="utf-8"></script>
-@if(!empty($md5_css))<link rel="stylesheet" href="{{ url($static.'tpl/css/'.$md5_css.'.css')}}">
-@endif
-@if(!empty($md5_js))<script src="{{ url($static.'tpl/js/'.tpl_js().'.js')}}"></script>
-@endif
 @include("sys.vim.handle.js")
 @if($handle_group_count > 1)
     <script>

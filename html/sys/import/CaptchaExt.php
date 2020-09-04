@@ -2,11 +2,6 @@
 
 use Illuminate\Support\Facades\Session;
 
-function __ob_captchaext($html){
-    header('Content-type:image/png');
-    return $html;
-}
-
 class CaptchaExt
 {
     protected $config = [
@@ -120,6 +115,11 @@ class CaptchaExt
         return false;
     }
 
+    private static function obCaptchaext($html){
+        header('Content-type:image/png');
+        return $html;
+    }
+
     /**
      * 输出验证码并把验证码的值保存的session中
      * 验证码保存到session的格式为： array('verify_code' => '验证码值', 'verify_time' => '验证码创建时间');
@@ -194,7 +194,7 @@ class CaptchaExt
         $secode['verify_code'] = $code; // 把校验码保存到session
         $secode['verify_time'] = time(); // 验证码创建时间
         Session::put($key . $id, $secode, $this->expire);
-        ob_start("__ob_captchaext");
+        ob_start("self::obCaptchaext");
         imagepng($this->_image);
         imagedestroy($this->_image);
 

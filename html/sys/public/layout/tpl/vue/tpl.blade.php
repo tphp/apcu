@@ -8,8 +8,6 @@
     $js = $data['js'];
     empty($js) && $js = [];
     list($borwser_name, $borwser_ext) = _get_browser();
-    $md5_css = tpl_css();
-    $md5_js = tpl_js();
 @endphp
 <html>
 <head>
@@ -20,7 +18,6 @@
 @endforeach
     <link rel="stylesheet" href="{{$static_tphp}}js/vue/element/index.css"/>
     <link rel="stylesheet" href="{{$static_tphp}}sys/css/style.css"/>
-    @if(!empty($md5_css))<link rel="stylesheet" href="{{ url($static.'tpl/css/'.$md5_css.'.css')}}" />@endif
     @if($borwser_name === 'IE')<script src="{{$static_tphp}}js/IE/polyfill.min.js"></script>@endif
     <script language="javascript" src="{{$static_tphp}}js/vue/vue.min.js"></script>
     <script language="javascript" src="{{$static_tphp}}js/vue/axios.min.js"></script>
@@ -138,7 +135,6 @@ border-bottom: 1px #CCC solid;
     @include("sys.public.layout.tpl.vue.js")
 @endif
 @foreach($js as $val)<script language="javascript" src="{{$conf_url.$val.".js"}}"></script>
-@if(!empty($md5_js))<script src="{{ url($static.'tpl/js/'.$md5_js.'.js')}}"></script>@endif
 @endforeach
 </body>
 </html>

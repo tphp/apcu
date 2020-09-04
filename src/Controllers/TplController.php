@@ -130,6 +130,16 @@ class TplController extends Controller {
 		return $buffer;
 	}
 
+    private static function obTplCss($code){
+        header('Content-type:text/css');
+        return $code;
+    }
+
+    private static function obTplJs($code){
+        header('Content-type:application/x-javascript');
+        return $code;
+    }
+
 	public function css(){
         $request = Request();
 		$md5 = $request->md5;
@@ -161,7 +171,7 @@ class TplController extends Controller {
 			$codetop = $this->getFileText($thistplarr, 'css', $thistplname);
 			$code = $codetop.$this->getFileText($ini);
 		}
-		ob_start('ob_tpl_css');
+		ob_start('self::obTplCss');
 		return $code;
 	}
 
@@ -197,7 +207,7 @@ class TplController extends Controller {
 			$codedown = $this->getFileText($thistplarr, 'js', $thistplname);
 			$code = $this->getFileText($ini, 'js').$codedown;
 		}
-		ob_start('ob_tpl_js');
+		ob_start('self::obTplJs');
 		return $code;
 	}
 

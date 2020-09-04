@@ -2033,12 +2033,33 @@ return function($data){
 
 				$toptpl = Tpl::$toptpl;
 				$tplarr = [];
+				$extarr = [];
 				foreach($arr as $val){
-					$val = $this->getRealTpl($val, $toptpl);
-					if($val != $toptpl){
-						$tplarr[] = $val;
-					}
+                    $val = trim($val);
+                    if(empty($val)){
+                        continue;
+                    }
+                    if($val[0] == '@'){
+                        // 外部链接以 @ 开头，可以是本页面的相对或绝对路径
+                        $extarr[] = ltrim($val, '@');
+                    }elseif(strpos($val, '://')){
+                        // 外部链接以 http:// 或 https:// 开头
+                        $extarr[] = $val;
+                    }else{
+                        $val = $this->getRealTpl($val, $toptpl);
+                        if($val != $toptpl){
+                            $tplarr[] = $val;
+                        }
+                    }
 				}
+				if(!empty($extarr)){
+                    $dfs = $GLOBALS['DATA_FILE_STATIC'];
+				    if(empty($dfs)){
+                        $dfs = [];
+                    }
+                    $dfs[$type] = $extarr;
+                    $GLOBALS['DATA_FILE_STATIC'] = $dfs;
+                }
                 empty($class) && $class = [];
 
 				$class = array_unique($class);
