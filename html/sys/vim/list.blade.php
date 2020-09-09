@@ -73,7 +73,9 @@
                 </select>
                 @elseif($tp == 'selects' || $tp == 'checkbox')
                 <select name="{{$key}}" xm-select="{{$key}}" xm-select-skin="default" xm-select-search="">
-                    @define $gv = explode(",", $_GET[$key])
+                    @php
+                        $gv = explode(",", $_GET[$key]);
+                    @endphp
                     <option value=""></option>
                     @foreach($val['list'] as $k=>$v) <option value="{{$k}}" @if(in_array($k, $gv)) selected="" @endif>{!!$v!!}</option> @endforeach
                 </select>

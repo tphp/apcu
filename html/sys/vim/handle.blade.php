@@ -35,7 +35,9 @@
 </head>
 <body data-tpl-type="{{$tpl_type}}" data-tpl-base="{{trim($tpl_base, '/')}}" data-base-url="/{{$tpl_path}}" data-static-path="{{$static_tphp}}" data-field='{{ empty($field) ? '' : json__encode($field) }}'>
 @if(!empty($handle_group) && is_array($handle_group))
-@define $handle_group_count = count($handle_group)
+@php
+    $handle_group_count = count($handle_group);
+@endphp
 <form class="layui-form @if($handle_group_count <= 1) layui-form-main @endif" action="" lay-filter="main">
     @if($handle_group_count > 1)
     <div class="layui-tab layui-tab-brief">
@@ -87,8 +89,10 @@
             <div class="layui-form-item">
                 <label class="layui-form-label">{!!$val['name']!!}</label>
                 <div class="layui-input-block" style="z-index:100;">
-                    @define empty($val['height']) ? $h = 300 : $h = $val['height']
-                    @define is_numeric($h) ? $hstr = "{$h}px" : $hstr = $h
+                    @php
+                        empty($val['height']) ? $h = 300 : $h = $val['height'];
+                        is_numeric($h) ? $hstr = "{$h}px" : $hstr = $h;
+                    @endphp
                     <textarea class="js_ueditor" name="{{$key}}" id="editor_{{$key}}" style="width:100%;height:{{$hstr}};"></textarea>
                 </div>
             </div>
@@ -114,9 +118,11 @@
             @elseif($type == 'selects' || $type == 'checkbox')
                 <div class="layui-form-item">
                     <label class="layui-form-label">{!!$val['name']!!}</label>
-                    @define empty($field[$key]) ? $gv = [] : $gv = explode(",", $field[$key])
-                    @define $is_checkbox = $is_ie || $type == 'checkbox'
-                    @define $afd_is_int = strpos($allfield[$key]['type'], 'int')
+                    @php
+                        empty($field[$key]) ? $gv = [] : $gv = explode(",", $field[$key]);
+                        $is_checkbox = $is_ie || $type == 'checkbox';
+                        $afd_is_int = strpos($allfield[$key]['type'], 'int');
+                    @endphp
                     <div @if($is_checkbox) class="layui-input-block js_checkbox" data-key="{{$key}}" @else class="layui-input-block" @endif>
                         @if($is_checkbox)
                             @foreach($val['list'] as $k=>$v)<input type="checkbox" name="{{$key}}[]" lay-skin="primary" value="{{$k}}" title="{{$v}}" @if(in_array($k, $gv)) checked="" @endif>@endforeach
@@ -136,13 +142,17 @@
                 <div class="layui-form-item">
                     <label class="layui-form-label">{!!$val['name']!!}</label>
                     <div class="layui-input-block">
-                        @define $vv=$field[$key]
+                        @php
+                            $vv=$field[$key];
+                        @endphp
                         @if($val['top'] !== false) <input type="{{$type}}" name="{{$key}}" value="" title="不选" @if(empty($vv)) checked="" @endif> @endif
                         @foreach($val['list'] as $k=>$v) <input type="{{$type}}" name="{{$key}}" value="{{$k}}" title="{{$v}}" @if($k == $vv) checked="" @endif> @endforeach
                     </div>
                 </div>
             @elseif($type == 'image' || $type == 'file')
-                @define $type == 'image' ? $typename = '上传图片' : $typename = '上传文件'
+                @php
+                    $type == 'image' ? $typename = '上传图片' : $typename = '上传文件';
+                @endphp
                 <div class="layui-form-item">
                     <label class="layui-form-label">{!!$val['name']!!}</label>
                     <div class="layui-input-block">
@@ -151,7 +161,9 @@
                         <button class="layui-btn layui-btn-primary js_btn_image_or_file" data-type="{{$type}}">{{$typename}}</button>
                     </div>
                     @if($type == 'image')
-                        @define $thumbs = $val['thumbs']
+                        @php
+                            $thumbs = $val['thumbs'];
+                        @endphp
                         @if(!empty($thumbs) && is_array($thumbs))
                             @foreach($thumbs as $k=>$v) @if(!isset($handle[$k]) && isset($allfield[$k])) <input name="{{$k}}" id="{{$k}}" type="hidden" value="{{$handle[$k]}}"> @endif @endforeach
                         @endif
@@ -177,12 +189,18 @@
                     </div>
                 </div>
             @elseif($type == 'field')
-                @define $vfd = $val['field']
+                @php
+                    $vfd = $val['field'];
+                @endphp
                 @if(!empty($vfd) && is_array($vfd))
-                    @define $vfdkv = json_decode($field[$key], true)
-                    @define empty($vfdkv) && $vfdkv = []
+                    @php
+                        $vfdkv = json_decode($field[$key], true);
+                        empty($vfdkv) && $vfdkv = [];
+                    @endphp
                     @foreach($vfd as $k=>$v)
-                    @define !is_string($k) && $k = $v
+                    @php
+                        !is_string($k) && $k = $v;
+                    @endphp
                     <div class="layui-form-item">
                         <label class="layui-form-label">{!!$v!!}</label>
                         <div class="layui-input-block">
@@ -198,10 +216,14 @@
                     </div>
                 @endif
             @elseif($type == 'tpl')
-                @define $vtpl = trim($val['tpl'])
+                @php
+                    $vtpl = trim($val['tpl']);
+                @endphp
                 @if(!empty($vtpl))
-                    @define strpos($vtpl, ".") === false && $vtpl .= ".html"
-                    @define empty($val['config']) ? $tcf = [] : $tcf = $val['config']
+                    @php
+                        strpos($vtpl, ".") === false && $vtpl .= ".html";
+                        empty($val['config']) ? $tcf = [] : $tcf = $val['config'];
+                    @endphp
                     {!! tpl($vtpl, $tcf) !!}
                 @endif
             @else

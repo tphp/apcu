@@ -1,11 +1,13 @@
-@define $color = $_DC_['color']
-@if(!empty($color) && is_array($color) && count($color) >= 2)
-    @define $c1 = $color[0]
-    @define $c2 = $color[1]
-@else
-    @define $c1 = '4176e7'
-    @define $c2 = '2e99d4'
-@endif
+@php
+    $color = $_DC_['color'];
+    if(!empty($color) && is_array($color) && count($color) >= 2){
+        $c1 = $color[0];
+        $c2 = $color[1];
+    }else{
+        $c1 = '4176e7';
+        $c2 = '2e99d4';
+    }
+@endphp
 <style>
     .layui-table-cell .js_tree_fa,
     .layui-tab-brief>.layui-tab-title .layui-this,

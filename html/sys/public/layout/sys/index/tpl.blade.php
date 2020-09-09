@@ -54,8 +54,10 @@
     <link href="{{ url($static.'css/layer.css') }}" rel="stylesheet"/>
     <link href="{{ url($static.'css/style.css') }}" rel="stylesheet"/>
     @if(!empty($color) && is_array($color) && count($color) >= 2)
-        @define $c1 = $color[0]
-        @define $c2 = $color[1]
+        @php
+            $c1 = $color[0];
+            $c2 = $color[1];
+        @endphp
         <style>
             .frame-top {
                 background: #{{$c1}};

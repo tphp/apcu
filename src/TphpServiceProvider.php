@@ -10,11 +10,4 @@ class TphpServiceProvider extends ServiceProvider
     {
         \Tphp\Apcu\Routes::set($this->namespace);
     }
-
-    public function map()
-    {
-        Blade::extend(function($value) {
-            return preg_replace('/\@define(.+)/', '<?php ${1}; ?>', $value);
-        });
-    }
 }
