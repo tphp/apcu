@@ -462,7 +462,7 @@ if(!function_exists('import')) {
                 $filepath = $tpath . ".class.php";
             } else {
                 $b_path = base_path(get_tphp_html_path());
-                $tpath = $b_path . $GLOBALS['domains_path']->base_tpl_path . "import/{$classpath}";
+                $tpath = $b_path . $GLOBALS['DOMAIN_PATH']->base_tpl_path . "import/{$classpath}";
                 if (file_exists($tpath . ".php")) {
                     $filepath = $tpath . ".php";
                 } elseif (file_exists($tpath . ".class.php")) {

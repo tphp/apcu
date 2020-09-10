@@ -159,8 +159,8 @@ class DomainsController extends Controller
         if(empty($GLOBALS['DOMAIN_PATH'])){
             $GLOBALS['DOMAIN_PATH'] = new DomainsPath($tpl);
         }
-        $domains_path = $GLOBALS['DOMAIN_PATH'];
-        foreach ($domains_path as $key=>$val){
+        $domain_path = $GLOBALS['DOMAIN_PATH'];
+        foreach ($domain_path as $key=>$val){
             $this->$key = $val;
         }
         if(!defined('SESSION_ID')){
