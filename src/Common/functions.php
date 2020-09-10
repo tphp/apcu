@@ -168,7 +168,7 @@ if(!function_exists('_tpl_')) {
     function _tpl_($tpl = '', $config = [], $runname = "run", $isarray = false)
     {
         if(!defined('BASE_TPL_PATH')){
-            return (new \Tphp\Apcu\DomainsController($tpl))->tpl();
+            return (new \Tphp\Apcu\DomainsController($tpl, $config))->tpl();
         }
         $tpl = str_replace("\\", "/", $tpl);
         if (!class_exists('Tpl')) {

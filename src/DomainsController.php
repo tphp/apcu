@@ -155,7 +155,7 @@ class DomainsPath
 class DomainsController extends Controller
 {
 
-	function __construct($tpl='') {
+	function __construct($tpl='', $config=null) {
         if(empty($GLOBALS['DOMAIN_PATH'])){
             $GLOBALS['DOMAIN_PATH'] = new DomainsPath($tpl);
         }
@@ -171,6 +171,7 @@ class DomainsController extends Controller
             session_destroy();
         }
         $this->__sys_path = dirname(__DIR__)."/sys/";
+        $this->config = $config;
 	}
 
     /**
@@ -335,7 +336,8 @@ class DomainsController extends Controller
      */
 	protected function _tpl_($tpl = '', $type = 'html', $config = []){
 	    $tplful = $tpl.".".$type;
-		empty($config) && $config = [];
+        empty($config) && $config = $this->config;
+        empty($config) && $config = [];
         $argsinfo = $this->args;
 		!empty($argsinfo) && $config['args'] = $argsinfo;
         $this_path = base_path(get_tphp_html_path().$this->base_tpl_path.$this->tpl_path);
