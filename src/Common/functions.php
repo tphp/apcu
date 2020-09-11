@@ -11,19 +11,6 @@ if(!is_callable('apcu_fetch')){
     $exit_str = "<div>需安装&nbsp;<a href=\"http://pecl.php.net/package/APCu\" target='_blank'>Apcu缓存</a>&nbsp;扩展</div>";
     exit($exit_str);
 }
-//接口URL转换
-if($_SERVER['HTTP_HOST'] == '127.0.0.1:880') {
-    function url($url)
-    {
-        $host = getenv('URL_API');
-        if(empty($host)){
-            $host = $_SERVER['REQUEST_SCHEME']."//".$_SERVER['HTTP_HOST'];
-        }else{
-            $host = rtrim($host, "/");
-        }
-        return $host . "/" . ltrim($url, "/");
-    }
-}
 
 /**
  * 获取上一次方法调用路径
