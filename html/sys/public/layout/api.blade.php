@@ -5,7 +5,7 @@
 @endphp
 <html>
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>@if(!empty($title)) {{$title}} - @endif API在线文档</title>
     <link href="{{$liburl}}api.css" rel="stylesheet" type="text/css"/>
     <script language="javascript" src="{{$static_tphp}}js/jquery/jquery.min.js"></script>

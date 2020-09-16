@@ -4,10 +4,10 @@
 @endphp
 <html>
 <head>
-    <meta charset="utf-8">
+    <meta charset="utf-8" />
     <title>{{$title}}</title>
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
     <style>
         table{
             display: none;
@@ -18,7 +18,7 @@
     </style>
 </head>
 <body>
-<link rel="stylesheet" href="{{url($static_tphp.'layui/css/layui.css')}}"  media="all">
+<link rel="stylesheet" href="{{url($static_tphp.'layui/css/layui.css')}}"  media="all" />
 <script src="{{url($static_tphp.'js/jquery/jquery.js')}}"></script>
 <table class="layui-table" lay-size="sm" style="display: none;">
     <thead>

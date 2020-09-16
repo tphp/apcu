@@ -16,7 +16,7 @@
     <meta name="description" content="{{$description}}" />
     <title>{{$title}}</title>
     @if($is_backstage)
-    <link href="{{url($staticadmin.'css/font-awesome.min.css')}}" rel="stylesheet"/>
+    <link href="{{url($staticadmin.'css/font-awesome.min.css')}}" rel="stylesheet" />
     @include("sys.public.layout.public.style")
     @endif
     <script src="{{url($staticadmin.'js/jquery.min.js')}}"></script>

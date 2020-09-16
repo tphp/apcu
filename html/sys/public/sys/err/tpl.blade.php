@@ -1,6 +1,6 @@
 <html>
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <STYLE type=text/css>
         BODY {
             FONT-SIZE: 12px;

@@ -59,5 +59,5 @@
         background-color: #FFF !important;
     }
 </style>
-<link rel="stylesheet" href="{{url($staticadmin.'vim/css/index.css')}}"/>
+<link rel="stylesheet" href="{{url($staticadmin.'vim/css/index.css')}}" />
 @if($borwser_name !== 'Chrome') @include("sys.public.layout.public.style.ie") @endif

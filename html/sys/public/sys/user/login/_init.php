@@ -356,14 +356,7 @@ EOF;
                 $menu_list = [];
             }
             if(!empty($menu_ids_lt)) {
-                Session::put($userinfoid, [
-                    'id' => $userinfo->id,
-                    'username' => $username,
-                    'role_id' => $userinfo->role_id,
-                    'menu_ids' => $menu_ids,
-                    'image' => $userinfo->image
-                ], 10);
-                $def_list = tpl("/sys/json/menu/add.data");
+                $def_list = tpl("/sys/public/sys/json/menu/add.data");
                 if (!empty($def_list) && is_array($def_list)) {
                     foreach ($def_list as $key => $val) {
                         if (!in_array($val['id'], $menu_ids_lt)) {

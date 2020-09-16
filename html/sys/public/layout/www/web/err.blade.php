@@ -4,11 +4,11 @@
 @endphp
 <html>
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>错误信息</title>
 </head>
 <body>
-<link rel="stylesheet" href="{{url($static_tphp.'oa/css/err.css')}}"/>
+<link rel="stylesheet" href="{{url($static_tphp.'oa/css/err.css')}}" />
 <div class="prompt_container" >
     <div class="prompt_frame">
         <div class="prompt_centerL">

@@ -45,14 +45,14 @@
     <meta name="format-detection" content="email=no" />
     <meta name="viewport" content="viewport-fit=cover,width=device-width,height=device-height,initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <meta name="renderer" content="webkit|ie-comp|ie-stand"/>
-    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="chrome=1,IE=edge">
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1,IE=edge" />
     <title>{{preg_replace("/<[^>]*>/is", "", $title)}}</title>
-    <link href="{{ url($static.'css/font-awesome.min.css') }}" rel="stylesheet"/>
-    <link href="{{ url($static.'css/bootstrap.min.css') }}" rel="stylesheet"/>
-    <link href="{{ url($static.'css/jquery.mCustomScrollbar.min.css') }}" rel="stylesheet"/>
-    <link href="{{ url($static.'css/layer.css') }}" rel="stylesheet"/>
-    <link href="{{ url($static.'css/style.css') }}" rel="stylesheet"/>
+    <link href="{{ url($static.'css/font-awesome.min.css') }}" rel="stylesheet" />
+    <link href="{{ url($static.'css/bootstrap.min.css') }}" rel="stylesheet" />
+    <link href="{{ url($static.'css/jquery.mCustomScrollbar.min.css') }}" rel="stylesheet" />
+    <link href="{{ url($static.'css/layer.css') }}" rel="stylesheet" />
+    <link href="{{ url($static.'css/style.css') }}" rel="stylesheet" />
     @if(!empty($color) && is_array($color) && count($color) >= 2)
         @php
             $c1 = $color[0];

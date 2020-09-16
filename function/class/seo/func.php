@@ -34,7 +34,7 @@ return function($data){
 
 				if(!empty($config['keywords']))
 				{
-					$keywords = "<meta name='keywords' content='{$config['keywords']}'>";
+					$keywords = "<meta name='keywords' content='{$config['keywords']}' />";
 					if(preg_match("!<meta\s.*?name=['\"]keywords!ui",$head))
 					{
 						$head = preg_replace("!<meta\s.*?name=['\"]keywords.*?/?>!ui",$flagk,$head,1);
@@ -47,7 +47,7 @@ return function($data){
 
 				if(!empty($config['description']))
 				{
-					$description = "<meta name='description' content='{$config['description']}'>";
+					$description = "<meta name='description' content='{$config['description']}' />";
 					if(preg_match("!<meta\s.*?name=['\"]description!ui",$head))
 					{
 						$head = preg_replace("!<meta\s.*?name=['\"]description.*?/?>!ui",$flagd,$head,1);

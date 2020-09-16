@@ -18,13 +18,13 @@
 @endphp
 <html>
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>@if(!empty($title)) {{$title}} - @endif 用户测试</title>
-@foreach($css as $val)    <link rel="stylesheet" href="{{$conf_url.$val.".css"}}"/>
+@foreach($css as $val)    <link rel="stylesheet" href="{{$conf_url.$val.".css"}}" />
 @endforeach
-    <link rel="stylesheet" href="{{$static_tphp}}js/vue/element/index.css"/>
-    <link rel="stylesheet" href="{{$static_tphp}}sys/css/style.css"/>
+    <link rel="stylesheet" href="{{$static_tphp}}js/vue/element/index.css" />
+    <link rel="stylesheet" href="{{$static_tphp}}sys/css/style.css" />
     @if($borwser_name === 'IE')<script src="{{$static_tphp}}js/IE/polyfill.min.js"></script>@endif
     <script language="javascript" src="{{$static_tphp}}js/vue/vue.min.js"></script>
     <script language="javascript" src="{{$static_tphp}}js/vue/axios.min.js"></script>

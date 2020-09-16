@@ -11,8 +11,8 @@
     <meta name="description" content="{{$description}}" />
     <title>{{$title}}</title>
 
-    <link rel="stylesheet" href="{{url($static_tphp.'layui/css/layui.css')}}"  media="all">
-    <link rel="stylesheet" href="{{url($staticadmin.'css/font-awesome.min.css')}}"/>
+    <link rel="stylesheet" href="{{url($static_tphp.'layui/css/layui.css')}}"  media="all" />
+    <link rel="stylesheet" href="{{url($staticadmin.'css/font-awesome.min.css')}}" />
     @include("sys.public.layout.public.style")
     <script src="{{url($static_tphp.'layui/layui.js')}}" charset="utf-8"></script>
     <script src="{{url($static_tphp.'js/jquery/jquery.js')}}"></script>
