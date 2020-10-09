@@ -211,6 +211,106 @@ class TplController extends Controller {
 		return $code;
 	}
 
+	// 获取相对路径
+	private function getRelativePath($urla, $urlb){
+        $a_dirname = dirname($urla);
+        $b_dirname = dirname($urlb);
+        $a_dirname = trim($urla,"/");
+        $b_dirname = trim($urlb,"/");
+        $a_arr = explode("/", $a_dirname);
+        $b_arr = explode("/", $b_dirname);
+        $count = 0;
+        $num = min(count($a_arr) ,count($b_arr));
+        for ($i = 0; $i < $num; $i ++)
+        {
+            if ($a_arr[$i] == $b_arr[$i]){
+                unset($a_arr[$i]);
+                $count ++;
+            }
+            else{
+                break;
+            }
+        }
+        $relativepath=str_repeat("../", $count).implode("/", $a_arr);
+        return $relativepath;
+    }
+
+    /**
+     * 删除软连接，兼容Windows和Linux
+     * @param $path
+     */
+    private function unLink($path){
+        if(PHP_OS == 'WINNT'){
+            $path = str_replace("/", "\\", $path);
+            if(is_file($path)){
+                unlink($path);
+            }else{
+                @rmdir($path);
+            }
+        }else{
+            unlink($path);
+        }
+    }
+	
+	// 全局插件软连接
+	public function plugins($user='', $dir=''){
+	    if(empty($user) || empty($dir)){
+	        abort(404);
+        }
+        $sys_plugins_path = TPHP_TPL_PATH."/sys/plugins/{$user}/{$dir}/static";
+        $user_path = public_path("/static/plugins/{$user}/");
+        $link_file = $user_path.$dir;
+        $xfile = import('XFile');
+        $readlink_path = '';
+        try{
+            $readlink_path = readlink($link_file);
+        }catch (\Exception $e){
+            // TODO
+        }
+	    if(!is_dir($sys_plugins_path)){
+            if(!empty($readlink_path)){
+                $this->unLink($link_file);
+            }
+            abort(404);
+        }
+
+	    $gitignore = public_path('/static/plugins/.gitignore');
+	    if(!is_file($gitignore)){
+            $xfile->write($gitignore, "*\n!.gitignore");
+            if(!is_file($gitignore)){
+                abort(501, '无权限创建文件');
+            }
+        }
+	    if(!is_dir($user_path)){
+            $xfile->mkDir($user_path);
+            if(!is_dir($user_path)){
+                abort(501, '无权限创建文件夹');
+            }
+        }
+        if(is_file($link_file)){
+            $xfile->delete($link_file);
+        }
+	    if(is_dir($sys_plugins_path)){
+	        $relative_path = $this->getRelativePath($sys_plugins_path, $link_file);
+            if(PHP_OS == 'WINNT'){
+                // Windows系统必须转化为反斜杠，否则有可能目录访问出错
+                $relative_path = str_replace("/", "\\", $relative_path);
+            }
+	        if(empty($readlink_path)){
+                symlink($relative_path, $link_file);
+            }elseif($relative_path != $readlink_path){
+                $this->unLink($link_file);
+                symlink($relative_path, $link_file);
+            }else{
+                abort(404);
+            }
+            // 创建软连接后继续重定向当前页面
+            redirect($_SERVER['REQUEST_URI'])->send();
+        }else{
+            abort(404);
+        }
+    }
+
 	//图标设置
 	public function ico(){
 	    $icon_path = $GLOBALS['DOMAIN_CONFIG']['icon'];

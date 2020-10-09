@@ -6,10 +6,39 @@
 error_reporting(E_ALL ^ E_NOTICE);
 //APCU更新缓存ID设置
 define("APCU_SET_TIME_CACHE", "__apcu_set_time_cache__");
-if(!is_callable('apcu_fetch')){
-    // 如果没有安装Apcu扩展，则退出
-    $exit_str = "<div>需安装&nbsp;<a href=\"http://pecl.php.net/package/APCu\" target='_blank'>Apcu缓存</a>&nbsp;扩展</div>";
-    exit($exit_str);
+if(!function_exists('apcu_fetch')){
+    // APCU扩展未安装方案（文件存储替代）
+    // 配置验证
+    function apcu_check(){
+        if(env('APCU') !== false){
+            // 如果没有安装Apcu扩展，则退出
+            $exit_str = "<div>1、推荐安装&nbsp;<a href=\"http://pecl.php.net/package/APCu\" target='_blank'>Apcu缓存</a>&nbsp;扩展</div><div>2、无法安装APCU扩展需修改.env文件 APCU=false 支持</div>";
+            exit($exit_str);
+        }
+    }
+
+    function apcu_fetch($key){
+        apcu_check();
+        $cache_path = storage_path('framework/cache/apcu/'.md5($key));
+        if(is_file($cache_path)){
+            return unserialize(import('XFile')->read($cache_path));
+        }else{
+            return null;
+        }
+    }
+
+    function apcu_store($key, $var){
+        apcu_check();
+        $cache_path = storage_path('framework/cache/apcu/'.md5($key));
+        if(!is_file($cache_path)){
+            import('XFile')->write($cache_path, serialize($var));
+        }
+    }
+
+    function apcu_clear_cache(){
+        apcu_check();
+        import('XFile')->deleteDir(storage_path('framework/cache/apcu/'));
+    }
 }
 
 /**

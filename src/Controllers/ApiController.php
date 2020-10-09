@@ -3255,20 +3255,19 @@ class ApiController
         $userinfo = $this->vim->userinfo;
         if(empty($userinfo)){
             $userinfo = $this->tplclass->userinfo;
-            if(empty($userinfo)){
-                $btpt = BASE_TPL_PATH_TOP;
-                $btpt = trim(trim($btpt), "/");
-                $btpt = str_replace("/", "_", $btpt);
-                $userinfo = \Session::get($btpt."_sys_user_login_userinfo");
-                if(
-                    empty($userinfo) &&
-                    $GLOBALS['DOMAIN_CONFIG']['backstage'] &&
-                    !in_array($this->tplclass->tpl_init, [
-                        'sys/user/login',
-                        'sys/user/login/captcha'
-                    ])
-                ){
-                    redirect("/sys/user/login")->send();
+            if(empty($userinfo) && $GLOBALS['DOMAIN_CONFIG']['backstage'] && \Tpl::$is_root){
+                $backstage_arrow = $GLOBALS['DOMAIN_CONFIG']['backstage_arrow'];
+                if(empty($backstage_arrow) || !is_array($backstage_arrow)){
+                    $backstage_arrow = [];
+                }
+                $backstage_arrow[] = 'sys/user/login';
+                $backstage_arrow[] = 'sys/user/login/captcha';
+                if(!in_array($this->tplclass->tpl_init, $backstage_arrow)){
+                    if(count($_POST) > 0){
+                        EXITJSON(0, "登录超时， 请重新登录！");
+                    }else{
+                        redirect("/sys/user/login")->send();
+                    }
                 }
             }
         }

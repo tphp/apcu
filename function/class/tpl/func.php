@@ -1604,13 +1604,19 @@ return function($data){
 			 */
 			private function getDataToIni($data, $type, $config){
 				$type = trim($type);
-				if(empty($type)) return apcu($config, $data);
+                $sqlconfig = $config['#sql'];
+                if(empty($type)){
+                    if(empty($sqlconfig)){
+                        return apcu($config, $data);
+                    }else{
+                        return $data;
+                    }
+                }
 
 				$type = strtolower($type);
                 $srcdata = [];
 				if(is_array($data)) {
 					if(in_array($type, $this->_data_type_list)) {
-						$sqlconfig = $config['#sql'];
 						if(empty($sqlconfig)) return [$data, $data];
                         if ($type == 'sql' || $type == 'api') {
                             $c_config = [];

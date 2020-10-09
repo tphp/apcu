@@ -11,24 +11,22 @@ class InitController extends Controller {
         $btpt = str_replace("/", "_", $btpt);
         $userinfoid = $btpt."_sys_user_login_userinfo";
         $userinfo = Session::get($userinfoid);
-        if(
-            empty($userinfo) &&
-            !in_array($tpl, [
-                'sys/user/login',
-                'sys/user/login/captcha',
-                'info/warning/sql/send',
-                'info/warning/sql/send/to',
-                'manage/code/dev/sql/run',
-                'manage/code/tree',
-                'manage/code/dev/sql/fieldset'
-            ])
-        ){
-            if(count($_POST) > 0){
-                EXITJSON(0, "登录超时， 请重新登录！");
-            }else{
-                redirect("/sys/user/login")->send();
+        if(empty($userinfo)){
+            $backstage_arrow = $GLOBALS['DOMAIN_CONFIG']['backstage_arrow'];
+            if(empty($backstage_arrow) || !is_array($backstage_arrow)){
+                $backstage_arrow = [];
+            }
+            $backstage_arrow[] = 'sys/user/login';
+            $backstage_arrow[] = 'sys/user/login/captcha';
+            if(!in_array($tpl, $backstage_arrow)){
+                if(count($_POST) > 0){
+                    EXITJSON(0, "登录超时， 请重新登录！");
+                }else{
+                    redirect("/sys/user/login")->send();
+                }
             }
         }
+
         $this->userinfo = $userinfo;
         $GLOBALS['USERINFO'] = $userinfo;
 

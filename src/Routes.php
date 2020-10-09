@@ -169,13 +169,17 @@ class Routes{
             if(is_file($dm_data_file)){
                 $ext_data = include $dm_data_file;
                 if(!empty($ext_data) && is_array($ext_data)){
+                    if(isset($ext_data['tpl'])){
+                        unset($ext_data['tpl']);
+                    }
                     foreach ($ext_data as $ext_key=>$ext_val){
-                        if(empty($ext_val)){
+                        if(is_null($ext_val)){
                             continue;
                         }
-                        if(in_array($ext_key, [
+                        /*
                             'conn', // 数据库链接标识
                             'backstage', // 是否是后台
+                            'backstage_arrow', // 允许直接访问URL，无需登录
                             'title', // 页面标题
                             'keywords', // 页面关键词
                             'description', // 页面描述
@@ -185,9 +189,10 @@ class Routes{
                             'href', // URL链接
                             'layout', //全局布局，优先级最低 如 public/tpl
                             'icon', // 网站图标设置，支持jpeg、png、jpg、ico等，默认：favicon.ico
-                            ])){
-                            $drd[$ext_key] = $ext_val;
-                        }elseif($ext_key == 'routes'){ // 路由设置
+                            'routes', // 原始路由
+                            'env', // .env配置
+                         */
+                        if($ext_key == 'routes'){ // 路由设置
                             if(empty($drd[$ext_key])){
                                 $drd[$ext_key] = $ext_val;
                             }else{
@@ -217,6 +222,8 @@ class Routes{
                                     }
                                 }
                             }
+                        }else{
+                            $drd[$ext_key] = $ext_val;
                         }
                     }
                 }
@@ -282,7 +289,14 @@ class Routes{
                         for ($i = 1; $i <= $rucot; $i++) {
                             $add_str .= '/{api_name_' . $i . '}';
                         }
-                        !$routesbools[$add_str] && Route::any($add_str, function (){return (new DomainsController())->tpl();})->middleware($middleware);
+                        if(!$routesbools[$add_str]){
+                            if($rucot >= 2 && $ruarr[0] == 'static' && $ruarr[1] == 'plugins'){
+                                //公共插件
+                                Route::any($add_str, function () use($ruarr) {return (new TplController())->plugins($ruarr[2], $ruarr[3]);})->middleware($middleware);
+                            }else{
+                                Route::any($add_str, function (){return (new DomainsController())->tpl();})->middleware($middleware);
+                            }
+                        }
                     }
                 });
             }

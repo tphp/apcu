@@ -35,6 +35,9 @@ class XString{
      * @return mixed
      */
     public function replaceStrToHtml($search='', $replace='', $subject=''){
+        if(!is_string($subject)){
+            $subject = "{$subject}";
+        }
         $s_len = strlen($subject);
         $is_tag = false;
         $tmp_str = "";

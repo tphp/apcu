@@ -534,7 +534,7 @@ class VimController{
                 //智能去除功能：编辑、排序
 //                unset($vconfig[$key]['edit']);
                 unset($vconfig[$key]['order']);
-                if(!isset($val['from']) && !is_array($val['from']) && !isset($val['find']) && !is_array($val['find'])) {
+                if(!isset($val['from']) && !is_array($val['from']) && !isset($val['find']) && !is_array($val['find']) && $val['custom'] !== true) {
                     unset($vconfig[$key]['search']);
                 }
             }

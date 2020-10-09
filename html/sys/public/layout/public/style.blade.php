@@ -1,4 +1,6 @@
 @php
+    $static_tphp = config('path.static_tphp');
+    $staticadmin = $static_tphp."admin/";
     $color = $_DC_['color'];
     list($borwser_name) = _get_browser();
     if(!empty($color) && is_array($color) && count($color) >= 2){
